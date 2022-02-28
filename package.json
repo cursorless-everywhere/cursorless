@@ -1,13 +1,13 @@
 {
-	"name": "cursorless",
-	"displayName": "Cursorless",
+	"name": "phil-cursorless",
+	"displayName": "Cursorless (Phil)",
 	"description": "Structural voice coding at the speed of thought",
 	"icon": "images/icon.png",
 	"galleryBanner": {
 		"color": "#00001A",
 		"theme": "dark"
 	},
-	"version": "0.26.11",
+	"version": "0.26.12",
 	"publisher": "pokey",
 	"license": "MIT",
 	"repository": {
