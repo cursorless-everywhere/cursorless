@@ -8,6 +8,10 @@ import isTesting from "./testUtil/isTesting";
 import CommandRunner from "./core/commandRunner/CommandRunner";
 
 export async function activate(context: vscode.ExtensionContext) {
+
+  // NOTE(pcohen): confirm we are on the fork
+  vscode.window.showInformationMessage('Phil: Cursorless fork (v4)!');
+
   const { getNodeAtLocation } = await getParseTreeApi();
   const commandServerApi = await getCommandServerApi();
 
