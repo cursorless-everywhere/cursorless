@@ -8,6 +8,7 @@ import Decorations from "../core/Decorations";
 import { HatStyleName } from "../core/constants";
 import { TOKEN_MATCHER } from "../core/tokenizer";
 import { IndividualHatMap } from "../core/IndividualHatMap";
+import {rangeToPlainObject} from "../testUtil/toPlainObject";
 
 interface CharacterTokenInfo {
   characterIdx: number;
@@ -157,6 +158,20 @@ export function addDecorationsToEditors(
     characterDecorationIndices[bestCharacter.character] =
       currentDecorationIndex + 1;
   });
+
+
+  // NOTE(pcohen): write out the hats now that we have changed them
+  const fs = require("fs");
+  let serialized: any = {};
+
+  decorationRanges.forEach((ranges, editor) => {
+    let r: any = {};
+    decorations.hatStyleNames.forEach((hatStyleName) => {
+      r[hatStyleName] = ranges[hatStyleName]!.map(r => rangeToPlainObject(r));
+    });
+    serialized[editor.document.uri.path] = r;
+  });
+  fs.writeFileSync(require('os').homedir() + "/vscode-hats.json", JSON.stringify(serialized));
 
   decorationRanges.forEach((ranges, editor) => {
     decorations.hatStyleNames.forEach((hatStyleName) => {
