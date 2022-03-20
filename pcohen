@@ -4,23 +4,13 @@ source $HOME/bin/fix-paths.bash
 set -e
 
 rm *.vsix || true
+
+# Bump the version to ensure that it gets upgraded.
 npm version patch --force
+
 npm run esbuild
 npm run compile
-
-#rsync -rav /Users/phillco/src/vscode-extension/cursorless-sidecar/ ~/.vscode/extensions/cursorless/
-#touch  ~/.vscode/extensions/cursorless
-
-#talon-eval 'actions.user.vscode_with_plugin("workbench.action.reloadWindow")'
-#talon-eval 'actions.user.vscode_with_plugin("phil.helloWorld")'
 
 vsce package
 echo code --install-extension *.vsix
 code --install-extension *.vsix
-#
-#set +e
-#sleep 0.1
-#pgrep -f '/Applications/Visual Studio Code.app/Contents/MacOS/Electron' | xargs -L1 kill
-#
-#sleep 0.7
-#open /Applications/Visual\ Studio\ Code.app
