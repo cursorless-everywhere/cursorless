@@ -8,7 +8,7 @@ npm version patch --force
 npm run esbuild
 npm run compile
 
-#rsync -rav /Users/phillco/src/vscode-extension/phil/ ~/.vscode/extensions/cursorless/
+#rsync -rav /Users/phillco/src/vscode-extension/cursorless-sidecar/ ~/.vscode/extensions/cursorless/
 #touch  ~/.vscode/extensions/cursorless
 
 #talon-eval 'actions.user.vscode_with_plugin("workbench.action.reloadWindow")'
