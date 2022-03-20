@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-source $HOME/bin/fix-paths.bash
 set -e
 
+# Remove any previously compiled versions.
 rm *.vsix || true
 
 # Bump the version to ensure that it gets upgraded.
@@ -12,5 +12,6 @@ npm run esbuild
 npm run compile
 
 vsce package
-echo code --install-extension *.vsix
+
+# Install the compiled extension.
 code --install-extension *.vsix
