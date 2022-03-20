@@ -171,7 +171,7 @@ export function addDecorationsToEditors(
     });
     serialized[editor.document.uri.path] = r;
   });
-  fs.writeFileSync(require('os').homedir() + "/vscode-hats.json", JSON.stringify(serialized));
+  fs.writeFileSync(require('os').homedir() + "/.vscode-hats.json", JSON.stringify(serialized));
 
   decorationRanges.forEach((ranges, editor) => {
     decorations.hatStyleNames.forEach((hatStyleName) => {
