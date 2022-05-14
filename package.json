@@ -1,18 +1,18 @@
 {
-	"name": "cursorless",
-	"displayName": "Cursorless",
-	"description": "Structural voice coding at the speed of thought",
+	"name": "cursorless-sidecar",
+	"displayName": "Cursorless (Sidecar Fork)",
+	"description": "Forked version of Cursorless to be used as a sidecar for other editors.",
 	"icon": "images/icon.png",
 	"galleryBanner": {
 		"color": "#00001A",
 		"theme": "dark"
 	},
-	"version": "0.25.0",
+	"version": "0.50.4",
 	"publisher": "pokey",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cursorless-dev/cursorless.git"
+		"url": "https://github.com/phillco/cursorless.git"
 	},
 	"engines": {
 		"vscode": "^1.61.0"

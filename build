@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Remove any previously compiled versions.
+rm *.vsix || true
+
+# Bump the version to ensure that it gets upgraded.
+npm version patch --force --commit-hooks false --git-tag-version false
+
+npm run esbuild
+npm run compile
+
+# Stifle "WARNING  Using '*' activation is usually a bad idea as it impacts performance.
+# More info: https://code.visualstudio.com/api/references/activation-events#Start-up"
+yes | vsce package
+
+# Install the compiled extension.
+code --install-extension *.vsix
