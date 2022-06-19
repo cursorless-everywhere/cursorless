@@ -1,5 +1,5 @@
 {
-	"name": "cursorless-sidecar",
+	"name": "cursorless-fork",
 	"displayName": "Cursorless (Sidecar Fork)",
 	"description": "Forked version of Cursorless to be used as a sidecar for other editors.",
 	"icon": "images/icon.png",
@@ -7,7 +7,7 @@
 		"color": "#00001A",
 		"theme": "dark"
 	},
-	"version": "0.50.19",
+	"version": "0.50.20",
 	"publisher": "pokey-phillco",
 	"license": "MIT",
 	"repository": {
