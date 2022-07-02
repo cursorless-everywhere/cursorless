@@ -6,11 +6,38 @@ set -e
 rm *.vsix || true
 
 # Bump the version to ensure that it gets upgraded.
+echo "================================================================================"
+echo "Bumping version..."
+echo "================================================================================"
+
 npm version patch --force --commit-hooks false --git-tag-version false
 
-# Stifle "WARNING  Using '*' activation is usually a bad idea as it impacts performance.
-# More info: https://code.visualstudio.com/api/references/activation-events#Start-up"
+echo ""
+echo "================================================================================"
+echo "Packaging extension..."
+echo "================================================================================"
 yes | vsce package
 
 # Install the compiled extension.
+echo ""
+echo "================================================================================"
+echo "Installing extension..."
+echo "================================================================================"
+
 code --install-extension *.vsix
+
+echo ""
+echo "================================================================================"
+echo "Reloading VS Code..."
+echo "================================================================================"
+
+# Use the command socket to tell VS Code to reload in the background, if socat is installed.
+if [[ $(type -P "socat") ]] && [[ -e ~/.cursorless/vscode-socket ]]; then
+  echo "Reloading VS Code using the command socket..."
+  echo '{ "command": "command", "commandId": "workbench.action.reloadWindow" }' | socat - ~/.cursorless/vscode-socket
+else
+  echo "Not automatically reloading VS Code because \`socat\` is not installed"
+  echo "Reload the VS Code window manually (\"window reload\") to get the new version"
+fi
+
+echo "Done"
