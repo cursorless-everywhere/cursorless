@@ -10,6 +10,7 @@ import {
   ExcludeInteriorStage,
   InteriorOnlyStage,
 } from "./modifiers/InteriorStage";
+import ItemStage from "./modifiers/ItemStage";
 import { LeadingStage, TrailingStage } from "./modifiers/LeadingTrailingStages";
 import ModifyIfWeakStage from "./modifiers/ModifyIfWeakStage";
 import OrdinalRangeSubTokenStage, {
@@ -31,6 +32,9 @@ import {
   UrlStage,
 } from "./modifiers/scopeTypeStages/RegexStage";
 import TokenStage from "./modifiers/scopeTypeStages/TokenStage";
+import BoundedNonWhitespaceSequenceStage, {
+  BoundedNonWhitespaceSequenceModifier,
+} from "./modifiers/BoundedNonWhitespaceStage";
 import SurroundingPairStage from "./modifiers/SurroundingPairStage";
 import { ModifierStage } from "./PipelineStages.types";
 
@@ -89,8 +93,14 @@ const getContainingScopeStage = (
       return new NonWhitespaceSequenceStage(
         modifier as NonWhitespaceSequenceModifier
       );
+    case "boundedNonWhitespaceSequence":
+      return new BoundedNonWhitespaceSequenceStage(
+        modifier as BoundedNonWhitespaceSequenceModifier
+      );
     case "url":
       return new UrlStage(modifier as UrlModifier);
+    case "collectionItem":
+      return new ItemStage(modifier);
     case "surroundingPair":
       return new SurroundingPairStage(
         modifier as ContainingSurroundingPairModifier

@@ -80,12 +80,6 @@ async function runTest(file: string) {
     await sleep(fixture.postEditorOpenSleepTimeMs);
   }
 
-  if (!fixture.initialState.documentContents.includes("\n")) {
-    await editor.edit((editBuilder) => {
-      editBuilder.setEndOfLine(vscode.EndOfLine.LF);
-    });
-  }
-
   editor.selections = fixture.initialState.selections.map(createSelection);
 
   if (fixture.initialState.thatMark) {
@@ -142,6 +136,10 @@ async function runTest(file: string) {
     "cursorless.command",
     { ...fixture.command, usePrePhraseSnapshot }
   );
+
+  if (fixture.postCommandSleepTimeMs != null) {
+    await sleep(fixture.postCommandSleepTimeMs);
+  }
 
   const marks =
     fixture.finalState!.marks == null
