@@ -17,7 +17,7 @@ import CommandRunner from "./core/commandRunner/CommandRunner";
  */
 export async function activate(context: vscode.ExtensionContext) {
   // NOTE(pcohen): confirm we are on the fork
-  vscode.window.showInformationMessage("Phil: Cursorless fork (v5)!");
+  // vscode.window.showInformationMessage("Phil: Cursorless fork (v5)!");
 
   const { getNodeAtLocation } = await getParseTreeApi();
   const commandServerApi = await getCommandServerApi();
