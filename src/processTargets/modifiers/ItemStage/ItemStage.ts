@@ -8,8 +8,9 @@ import {
 } from "../../../typings/targetDescriptor.types";
 import { ProcessedTargetsContext } from "../../../typings/Types";
 import { getInsertionDelimiter } from "../../../util/nodeSelectors";
+import { getRangeLength } from "../../../util/rangeUtils";
 import { ModifierStage } from "../../PipelineStages.types";
-import ScopeTypeTarget from "../../targets/ScopeTypeTarget";
+import { ScopeTypeTarget } from "../../targets";
 import ContainingSyntaxScopeStage, {
   SimpleContainingScopeModifier,
 } from "../scopeTypeStages/ContainingSyntaxScopeStage";
@@ -23,9 +24,11 @@ export default class ItemStage implements ModifierStage {
     // First try the language specific implementation of item
     try {
       return new ContainingSyntaxScopeStage(
-        <SimpleContainingScopeModifier>this.modifier
+        this.modifier as SimpleContainingScopeModifier
       ).run(context, target);
-    } catch (_error) {}
+    } catch (_error) {
+      // do nothing
+    }
 
     // Then try the textual implementation
     if (this.modifier.type === "everyScope") {
@@ -70,10 +73,24 @@ export default class ItemStage implements ModifierStage {
       trailingDelimiterRange: last.trailingDelimiterRange,
     };
 
-    return this.itemInfoToTarget(target, itemInfo);
+    // We have both leading and trailing delimiter ranges
+    // The leading one is longer/more specific so prefer to use that for removal.
+    const removalRange =
+      itemInfo.leadingDelimiterRange != null &&
+      itemInfo.trailingDelimiterRange != null &&
+      getRangeLength(target.editor, itemInfo.leadingDelimiterRange) >
+        getRangeLength(target.editor, itemInfo.trailingDelimiterRange)
+        ? itemInfo.contentRange.union(itemInfo.leadingDelimiterRange)
+        : undefined;
+
+    return this.itemInfoToTarget(target, itemInfo, removalRange);
   }
 
-  private itemInfoToTarget(target: Target, itemInfo: ItemInfo) {
+  private itemInfoToTarget(
+    target: Target,
+    itemInfo: ItemInfo,
+    removalRange?: Range
+  ) {
     const delimiter = getInsertionDelimiter(
       target.editor,
       itemInfo.leadingDelimiterRange,
@@ -81,13 +98,14 @@ export default class ItemStage implements ModifierStage {
       ", "
     );
     return new ScopeTypeTarget({
-      scopeTypeType: <SimpleScopeTypeType>this.modifier.scopeType.type,
+      scopeTypeType: this.modifier.scopeType.type as SimpleScopeTypeType,
       editor: target.editor,
       isReversed: target.isReversed,
       contentRange: itemInfo.contentRange,
       delimiter,
       leadingDelimiterRange: itemInfo.leadingDelimiterRange,
       trailingDelimiterRange: itemInfo.trailingDelimiterRange,
+      removalRange,
     });
   }
 }

@@ -21,7 +21,7 @@ export function addDecorationsToEditors(
 ) {
   hatTokenMap.clear();
 
-  var editors: readonly vscode.TextEditor[];
+  let editors: readonly vscode.TextEditor[];
 
   if (vscode.window.activeTextEditor == null) {
     editors = vscode.window.visibleTextEditors;
@@ -70,7 +70,7 @@ export function addDecorationsToEditors(
 
   tokens.forEach((token, tokenIdx) => {
     [...token.text].forEach((character, characterIdx) => {
-      var characterTokenMap: Map<Token, CharacterTokenInfo>;
+      let characterTokenMap: Map<Token, CharacterTokenInfo>;
 
       if (character in characterTokens) {
         characterTokenMap = characterTokens[character];

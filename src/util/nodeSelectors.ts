@@ -94,14 +94,11 @@ function getNextMatchingSiblingNodeOrLast(
   let currentNode: SyntaxNode = node;
   let nextNode: SyntaxNode | null = node.nextSibling;
 
-  while (true) {
-    if (nextNode == null || nodeFinder(nextNode) != null) {
-      return currentNode;
-    }
-
+  while (nextNode != null && nodeFinder(nextNode) == null) {
     currentNode = nextNode;
     nextNode = nextNode.nextSibling;
   }
+  return currentNode;
 }
 
 /**
@@ -378,6 +375,29 @@ export function delimitedSelector(
       },
     };
   };
+}
+
+export function xmlElementExtractor(
+  editor: TextEditor,
+  node: SyntaxNode
+): SelectionWithContext {
+  const selection = simpleSelectionExtractor(editor, node);
+
+  // Interior range for an element is found by excluding the start and end nodes.
+  // Element nodes with too few children are self closing and therefore have no interior.
+  if (node.namedChildCount > 1) {
+    const { firstNamedChild, lastNamedChild } = node;
+    if (firstNamedChild != null && lastNamedChild != null) {
+      selection.context.interiorRange = new Range(
+        firstNamedChild.endPosition.row,
+        firstNamedChild.endPosition.column,
+        lastNamedChild.startPosition.row,
+        lastNamedChild.startPosition.column
+      );
+    }
+  }
+
+  return selection;
 }
 
 export function getInsertionDelimiter(
