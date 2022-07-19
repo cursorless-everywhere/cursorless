@@ -149,6 +149,7 @@ export default class CommandRunner {
 
       // NOTE(pcohen): save the file after making our change, so we can reload it
       // from JetBrains
+      // TODO(pcohen): still necessary?
       await vscode.window.activeTextEditor?.document.save();
 
       return returnValue;
