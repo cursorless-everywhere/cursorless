@@ -166,11 +166,19 @@ export function addDecorationsToEditors(
   let serialized: any = {};
 
   decorationRanges.forEach((ranges, editor) => {
-    let r: any = {};
+    let result: any = {};
     decorations.hatStyleNames.forEach((hatStyleName) => {
-      r[hatStyleName] = ranges[hatStyleName]!.map((r) => rangeToPlainObject(r));
+      result[hatStyleName] = ranges[hatStyleName]!.map((r) => {
+        let rpo = rangeToPlainObject(r);
+
+        // NOTE(pcohen): we provide document offsets as well for ease of implementation on the
+        // JetBrains side (particularly when converting tab stops).x
+        rpo.startOffset = editor.document.offsetAt(r.start);
+        rpo.endOffset = editor.document.offsetAt(r.end);
+        return rpo;
+      });
     });
-    serialized[editor.document.uri.path] = r;
+    serialized[editor.document.uri.path] = result;
   });
 
   const root = require("os").homedir() + "/.cursorless";
