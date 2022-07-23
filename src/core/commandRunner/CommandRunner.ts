@@ -147,11 +147,6 @@ export default class CommandRunner {
         await this.graph.testCaseRecorder.postCommandHook(returnValue);
       }
 
-      // NOTE(pcohen): save the file after making our change, so we can reload it
-      // from JetBrains
-      // TODO(pcohen): still necessary?
-      await vscode.window.activeTextEditor?.document.save();
-
       return returnValue;
     } catch (e) {
       await this.graph.testCaseRecorder.commandErrorHook(e as Error);
