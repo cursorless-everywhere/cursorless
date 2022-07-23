@@ -163,13 +163,13 @@ export function addDecorationsToEditors(
 
   // NOTE(pcohen): write out the hats now that we have changed them
   const fs = require("fs");
-  let serialized: any = {};
+  const serialized: any = {};
 
   decorationRanges.forEach((ranges, editor) => {
-    let result: any = {};
+    const result: any = {};
     decorations.hatStyleNames.forEach((hatStyleName) => {
       result[hatStyleName] = ranges[hatStyleName]!.map((r) => {
-        let rpo = rangeToPlainObject(r);
+        const rpo: any = rangeToPlainObject(r);
 
         // NOTE(pcohen): we provide document offsets as well for ease of implementation on the
         // JetBrains side (particularly when converting tab stops).x
