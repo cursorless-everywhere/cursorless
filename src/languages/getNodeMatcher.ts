@@ -13,6 +13,7 @@ import csharp from "./csharp";
 import { patternMatchers as json } from "./json";
 import { patternMatchers as typescript } from "./typescript";
 import java from "./java";
+import kotlin from "./kotlin";
 import { patternMatchers as html } from "./html";
 import php from "./php";
 import python from "./python";
@@ -23,6 +24,7 @@ import go from "./go";
 import latex from "./latex";
 import { patternMatchers as ruby } from "./ruby";
 import rust from "./rust";
+import talon from "./talon";
 import { UnsupportedLanguageError } from "../errors";
 import { SupportedLanguageId } from "./constants";
 
@@ -66,6 +68,7 @@ const languageMatchers: Record<
   javascriptreact: typescript,
   json,
   jsonc: json,
+  kotlin: kotlin,
   latex,
   markdown,
   php,
@@ -74,6 +77,7 @@ const languageMatchers: Record<
   scala,
   scss,
   rust,
+  talon: talon,
   typescript,
   typescriptreact: typescript,
   xml: html,
