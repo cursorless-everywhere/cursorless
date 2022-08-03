@@ -49,7 +49,6 @@ const nodeMatchers: Partial<
       childRangeSelector(["argument_list", ";"], [])
     )
   ),
-  map: "block",
   collectionKey: "command.rule!",
   name: "command.rule!",
   namedFunction: ["method_declaration", "constructor_declaration"],
