@@ -104,8 +104,12 @@ export default class Debug {
       node = node.parent;
     }
 
+    console.debug("PHIL: start debugging");
+
+    let mdOutput = "";
+
     const cursor = node.tree.walk();
-    this.printCursorLocationInfo(cursor, 0);
+    mdOutput += this.printCursorLocationInfo(cursor, 0);
 
     for (let i = 1; i < ancestors.length; ++i) {
       cursor.gotoFirstChild();
@@ -114,18 +118,38 @@ export default class Debug {
           return;
         }
       }
-      this.printCursorLocationInfo(cursor, i);
+      mdOutput += this.printCursorLocationInfo(cursor, i);
     }
 
     const leafText = ancestors[ancestors.length - 1].text
       .replace(/\s+/g, " ")
       .substring(0, 100);
-    console.debug(">".repeat(ancestors.length), `"${leafText}"`);
+
+    const prefix = "#".repeat(ancestors.length + 1);
+    const remainder = leafText.replace("#", "(hash)");
+
+    console.debug(prefix, remainder);
+    mdOutput += `${prefix} ${remainder}\n`;
+
+    console.debug("PHIL: end debugging");
+    const fs = require("fs");
+    const root = require("os").homedir() + "/.cursorless";
+    if (!fs.existsSync(root)) {
+      fs.mkdirSync(root);
+    }
+    fs.writeFileSync(`${root}/tree-sitter-debug.md`, mdOutput);
+
   }
 
   private printCursorLocationInfo(cursor: TreeCursor, depth: number) {
     const field = cursor.currentFieldName();
     const fieldText = field != null ? `${field}: ` : "";
-    console.debug(">".repeat(depth + 1), `${fieldText}${cursor.nodeType}`);
+
+    const prefix = "#".repeat(depth + 1);
+    const remainder = `${fieldText}${cursor.nodeType}`.replace("#", "\\#");
+
+    console.debug(prefix, remainder);
+
+    return `${prefix} ${remainder}\n`;
   }
 }
