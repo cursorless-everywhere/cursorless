@@ -51,12 +51,7 @@ const nodeMatchers: Partial<
   ),
   map: "block",
   collectionKey: "command.rule!",
-  name: [
-    "*[declarator][name]",
-    "assignment_expression[left]",
-    "*[name]",
-    "formal_parameter.identifier!",
-  ],
+  name: "command.rule!",
   namedFunction: ["method_declaration", "constructor_declaration"],
   type: trailingMatcher([
     "generic_type.type_arguments.type_identifier",
