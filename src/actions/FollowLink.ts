@@ -18,6 +18,12 @@ export default class FollowLink implements Action {
       this.graph.editStyles.referenced
     );
 
+    // NOTE(pcohen): this is where we would call out to JetBrains
+    // all "editor actions" need to operate purely on ranges,
+    // not targets.
+
+    // NOTE(pcohen): this is for stuff like links in the
+    // https://microsoft.com
     const link = await getLinkForTarget(target);
     if (link) {
       await this.openUri(link.target!);
