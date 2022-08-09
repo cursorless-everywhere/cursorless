@@ -23,6 +23,7 @@ const nodeMatchers: Partial<
   Record<SimpleScopeTypeType, NodeMatcherAlternative>
 > = {
   statement: STATEMENT_TYPES,
+  command: "command",
   class: "class_declaration",
   className: "class_declaration[name]",
   ifStatement: "if_statement",
