@@ -1,0 +1,32 @@
+languageId: talon
+command:
+  spokenForm: clear key
+  version: 2
+  targets:
+    - type: primitive
+      modifiers:
+        - type: containingScope
+          scopeType: {type: collectionKey}
+  usePrePhraseSnapshot: true
+  action: {name: clearAndSetSelection}
+initialState:
+  documentContents: >
+    ^<user.cursorless_action_or_vscode_command> <user.cursorless_target>$:
+    user.cursorless_action_or_vscode_command(cursorless_action_or_vscode_command,
+    cursorless_target)
+  selections:
+    - anchor: {line: 0, character: 57}
+      active: {line: 0, character: 57}
+  marks: {}
+finalState:
+  documentContents: >
+    :
+    user.cursorless_action_or_vscode_command(cursorless_action_or_vscode_command,
+    cursorless_target)
+  selections:
+    - anchor: {line: 0, character: 0}
+      active: {line: 0, character: 0}
+  thatMark:
+    - anchor: {line: 0, character: 0}
+      active: {line: 0, character: 0}
+fullTargets: [{type: primitive, mark: {type: cursor}, modifiers: [{type: containingScope, scopeType: {type: collectionKey}}]}]
