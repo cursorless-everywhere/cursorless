@@ -143,7 +143,7 @@ export default class Debug {
 
   private printCursorLocationInfo(cursor: TreeCursor, depth: number) {
     const field = cursor.currentFieldName();
-    const fieldText = field != null ? `${field}: ` : "";
+    const fieldText = field != null ? `[${field}]: ` : "";
 
     const prefix = "#".repeat(depth + 1);
     const remainder = `${fieldText}${cursor.nodeType}`.replace("#", "\\#");

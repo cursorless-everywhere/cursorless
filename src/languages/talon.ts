@@ -13,6 +13,17 @@ const STATEMENT_TYPES = [
   // "block",
 ];
 
+const KEY_TYPES = [
+  "command.rule!",
+  "assignment[left]",
+  "match[key]",
+  "settings.settings().settings()", // TODO(pcohen): match the settings().settings() afterwards
+  "include_tag.tag().tag()" // TODO(pcohen): match the tag().tag() afterwards
+]
+
+/* TODO(pcohen):
+ - "clear condition" would ideally leave the trailing -, chuck would delete it
+*/
 
 const nodeMatchers: Partial<
   Record<SimpleScopeTypeType, NodeMatcherAlternative>
@@ -20,23 +31,20 @@ const nodeMatchers: Partial<
   statement: STATEMENT_TYPES,
   command: "command",
   // NOTE(pcohen): `source_file.context!` allows "take condition" to work everywhere; whereas `context` alone requires a hat.
+  // TODO(pcohen): this includes the trailing "-" which we probably don't want
   condition: "source_file.context!",
   string: "string_literal",
   // TODO(pcohen): only selects one line even if there are multiple comment lines
+
   comment: ["comment"],
-  functionCall: ["expression[0]"],
-  functionCallee: "expression[0]",
-  collectionKey: [
-    "command.rule!",
-    "assignment[0]", // TODO(pcohen): ideally match the child by name rather than using a child index
-    "match[0]", // // TODO(pcohen): ideally match the "key: identifier" rather than using a child index
-    "settings", // TODO(pcohen): match the settings().settings() afterwards
-    "include_tag" // TODO(pcohen): match the tag().tag() afterwards
-  ],
-  name: "command.rule!",
+  functionCall: ["action"],
+  functionCallee: "action[action_name]",
+  collectionKey: KEY_TYPES,
+  name: KEY_TYPES,
   value: [
-    "assignment[1]", // TODO(pcohen): match "right: <integer/string/etc.>" rather than using an index
-    "match[1]", // TODO(pcohen): match "key: identifier" rather than using an index
+    "assignment[right]",
+    "match[pattern]",
+    "include_tag[tag]",
     "block",
   ],
   argumentOrParameter: argumentMatcher("argument_list"),

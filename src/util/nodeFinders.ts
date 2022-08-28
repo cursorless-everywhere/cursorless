@@ -331,7 +331,8 @@ class Pattern {
   notType: boolean = false;
 
   constructor(pattern: string) {
-    this.type = pattern.match(/^[\w*~]+/)![0];
+    this.type = pattern.match(/^[\w*~()]+/)![0];
+    console.log(this.type)
     if (this.type === "*") {
       this.anyType = true;
     } else if (this.type.startsWith("~")) {
@@ -357,6 +358,9 @@ class Pattern {
   }
 
   typeEquals(node: SyntaxNode) {
+    if (node.type === this.type) {
+      console.log(this.type, node.type, node.text)
+    }
     if (this.anyType) {
       return true;
     }
