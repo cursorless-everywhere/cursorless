@@ -185,7 +185,15 @@ export function addDecorationsToEditors(
   if (!fs.existsSync(root)) {
     fs.mkdirSync(root);
   }
-  fs.writeFileSync(`${root}/vscode-hats.json`, JSON.stringify(serialized));
+  // write to a hidden file first so eager file watchers don't get partial files.
+  // then perform a move to the proper location. this *should* be atomic?
+  // TODO: should we be deleting both of these files on cursorless startup?
+  fs.writeFileSync(`${root}/.vscode-hats.json`, JSON.stringify(serialized));
+  fs.rename(`${root}/.vscode-hats.json`, `${root}/vscode-hats.json`, (err) => {
+    if (err) {
+      throw err;
+    }
+  });
 
   decorationRanges.forEach((ranges, editor) => {
     decorations.hatStyleNames.forEach((hatStyleName) => {
