@@ -182,6 +182,7 @@ const textFragmentExtractors: Record<
   ),
   rust: constructDefaultTextFragmentExtractor("rust"),
   shellscript: constructDefaultTextFragmentExtractor("shellscript"),
+  talon: constructDefaultTextFragmentExtractor("talon"),
   typescript: constructDefaultTextFragmentExtractor(
     "typescript",
     typescriptStringTextFragmentExtractor
