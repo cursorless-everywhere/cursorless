@@ -24,6 +24,7 @@ import go from "./go";
 import latex from "./latex";
 import { patternMatchers as ruby } from "./ruby";
 import rust from "./rust";
+import shellscript from "./shellscript";
 import talon from "./talon";
 import { UnsupportedLanguageError } from "../errors";
 import { SupportedLanguageId } from "./constants";
@@ -76,6 +77,7 @@ const languageMatchers: Record<
   ruby,
   scala,
   scss,
+  shellscript,
   rust,
   talon: talon,
   typescript,

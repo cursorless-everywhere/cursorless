@@ -20,6 +20,7 @@ export const supportedLanguageIds = [
   "ruby",
   "scala",
   "scss",
+  "shellscript",
   "rust",
   "talon",
   "typescript",
@@ -31,7 +32,7 @@ export const supportedLanguageIds = [
  * Other language IDs that we might reference (e.g., for token customization)
  * but don't have full tree-sitter support for yet.
  */
-export const otherLanguageIds = ["shellscript"] as const;
+export const otherLanguageIds = [] as const;
 
 export const allLanguageIds = [...supportedLanguageIds, ...otherLanguageIds];
 

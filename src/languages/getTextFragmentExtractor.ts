@@ -181,6 +181,7 @@ const textFragmentExtractors: Record<
     scssStringTextFragmentExtractor
   ),
   rust: constructDefaultTextFragmentExtractor("rust"),
+  shellscript: constructDefaultTextFragmentExtractor("shellscript"),
   typescript: constructDefaultTextFragmentExtractor(
     "typescript",
     typescriptStringTextFragmentExtractor
