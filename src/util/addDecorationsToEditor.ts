@@ -4,7 +4,7 @@ import { HatStyleName } from "../core/constants";
 import { getTokenMatcher } from "../core/tokenizer";
 import Decorations from "../core/Decorations";
 import { IndividualHatMap } from "../core/IndividualHatMap";
-import { rangeToPlainObject } from "../testUtil/toPlainObject";
+import { rangeToPlainObjectWithOffsets } from "../testUtil/toPlainObject";
 import { TokenGraphemeSplitter } from "../core/TokenGraphemeSplitter";
 import { Token } from "../typings/Types";
 import { getDisplayLineMap } from "./getDisplayLineMap";
@@ -171,15 +171,9 @@ export function addDecorationsToEditors(
   decorationRanges.forEach((ranges, editor) => {
     const result: any = {};
     decorations.hatStyleNames.forEach((hatStyleName) => {
-      result[hatStyleName] = ranges[hatStyleName]!.map((r) => {
-        const rpo: any = rangeToPlainObject(r);
-
-        // NOTE(pcohen): we provide document offsets as well for ease of implementation on the
-        // JetBrains side (particularly when converting tab stops).x
-        rpo.startOffset = editor.document.offsetAt(r.start);
-        rpo.endOffset = editor.document.offsetAt(r.end);
-        return rpo;
-      });
+      result[hatStyleName] = ranges[hatStyleName]!.map((r) =>
+        rangeToPlainObjectWithOffsets(r, editor)
+      );
     });
     serialized[editor.document.uri.path] = result;
   });

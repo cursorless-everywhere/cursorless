@@ -1,4 +1,4 @@
-import { Selection, Position, Range } from "vscode";
+import { Selection, Position, Range, TextEditor } from "vscode";
 import { TestDecoration } from "../core/editStyles";
 import { Token } from "../typings/Types";
 
@@ -10,6 +10,13 @@ export type PositionPlainObject = {
 export type RangePlainObject = {
   start: PositionPlainObject;
   end: PositionPlainObject;
+};
+
+export type RangePlainObjectWithOffsets = {
+  start: PositionPlainObject;
+  end: PositionPlainObject;
+  startOffset: number;
+  endOffset: number;
 };
 
 export type SelectionPlainObject = {
@@ -25,6 +32,25 @@ export function rangeToPlainObject(range: Range): RangePlainObject {
   return {
     start: positionToPlainObject(range.start),
     end: positionToPlainObject(range.end),
+  };
+}
+
+/**
+ * Like `rangeToPlainObject`, but also includes the document character offsets.
+ *
+ * This is mainly for ease of implementation inside of other editors.
+ * @param range
+ * @param editor
+ */
+export function rangeToPlainObjectWithOffsets(
+  range: Range,
+  editor: TextEditor
+): RangePlainObjectWithOffsets {
+  return {
+    start: positionToPlainObject(range.start),
+    end: positionToPlainObject(range.end),
+    startOffset: editor.document.offsetAt(range.start),
+    endOffset: editor.document.offsetAt(range.end),
   };
 }
 
