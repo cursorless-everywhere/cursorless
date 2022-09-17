@@ -7,18 +7,13 @@ import { NodeMatcherAlternative } from "../typings/Types";
 import { SimpleScopeTypeType } from "../typings/targetDescriptor.types";
 
 const STATEMENT_TYPES = [
-  "expression",
+  "variable_assignment",
   "command",
-  "settings",
-  // "block",
 ];
 
 const KEY_TYPES = [
-  "command.rule!",
-  "assignment[left]",
-  "match[key]",
-  "settings.settings().settings()", // TODO(pcohen): match the settings().settings() afterwards
-  "include_tag.tag().tag()" // TODO(pcohen): match the tag().tag() afterwards
+  "variable_assignment[name]",
+
 ]
 
 /* TODO(pcohen):
@@ -28,26 +23,20 @@ const KEY_TYPES = [
 const nodeMatchers: Partial<
   Record<SimpleScopeTypeType, NodeMatcherAlternative>
 > = {
+  argumentOrParameter: argumentMatcher("command[argument]"),
   statement: STATEMENT_TYPES,
-  command: "command",
-  // NOTE(pcohen): `source_file.context!` allows "take condition" to work everywhere; whereas `context` alone requires a hat.
-  // TODO(pcohen): this includes the trailing "-" which we probably don't want
-  condition: "source_file.context!",
+  condition: "if_statement",
   string: "string_literal",
-  // TODO(pcohen): only selects one line even if there are multiple comment lines
-
   comment: ["comment"],
   functionCall: ["action"],
   functionCallee: "action[action_name]",
+  functionName: "function_definition[name]",
   collectionKey: KEY_TYPES,
   name: KEY_TYPES,
+  namedFunction: "function_definition",
   value: [
-    "assignment[right]",
-    "match[pattern]",
-    "include_tag[tag]",
-    "block",
-  ],
-  argumentOrParameter: argumentMatcher("argument_list"),
+    "variable_assignment[value]",
+  ]
 };
 
 export default createPatternMatchers(nodeMatchers);
