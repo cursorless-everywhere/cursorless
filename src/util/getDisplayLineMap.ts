@@ -8,8 +8,13 @@ import * as vscode from "vscode";
  * whether cursor is above or below last visible line.
  *
  * @param editor A visible editor
+ * // TODO(pcohen): ^ move the above to the IDE abstraction
+ * @param visibleRanges the editor's visible ranges
  */
-export function getDisplayLineMap(editor: vscode.TextEditor) {
+export function getDisplayLineMap(
+  editor: vscode.TextEditor,
+  visibleRanges: vscode.Range[]
+) {
   return new Map(
     flow(
       flatten,
@@ -17,7 +22,7 @@ export function getDisplayLineMap(editor: vscode.TextEditor) {
     )(
       concat(
         [[editor.selection.start.line]],
-        editor.visibleRanges.map((visibleRange) =>
+        visibleRanges.map((visibleRange) =>
           range(visibleRange.start.line, visibleRange.end.line + 1)
         )
       )

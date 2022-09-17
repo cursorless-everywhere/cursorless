@@ -10,6 +10,39 @@ import { Token } from "../typings/Types";
 import { getDisplayLineMap } from "./getDisplayLineMap";
 import { getTokenComparator } from "./getTokenComparator";
 import { getTokensInRange } from "./getTokensInRange";
+import { Range } from "vscode";
+
+/**
+ * Returns the visible ranges from the actual editor for Cursorless Everywhere, so we can use them
+ * instead of VS Code's active ranges.
+ *
+ * This way, the size of the sidecar is irrelevant.
+ *
+ * TODO(pcohen): move into the IDE abstraction
+ */
+function realVisibleRanges(): vscode.Range[] {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const fs = require("fs");
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const os = require("os");
+
+  // TODO(pcohen): eliminate this duplication with the sidecar extension
+  // -- make the extensions talk to each other
+  const state = JSON.parse(
+    fs.readFileSync(os.homedir() + "/.cursorless/editor-state.json")
+  );
+  const activeEditorState = state["activeEditor"];
+
+  // TODO(pcohen): add visibleRanges to the schema explicitly
+  return [
+    new Range(
+      activeEditorState["firstVisibleLine"],
+      0,
+      activeEditorState["lastVisibleLine"],
+      0
+    ),
+  ];
+}
 
 export function addDecorationsToEditors(
   hatTokenMap: IndividualHatMap,
@@ -34,10 +67,11 @@ export function addDecorationsToEditors(
   const tokens = concat(
     [],
     ...editors.map((editor) => {
-      const displayLineMap = getDisplayLineMap(editor);
+      const visibleRanges = realVisibleRanges();
+      const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(
-        editor.visibleRanges.map((range) =>
+        visibleRanges.map((range) =>
           getTokensInRange(editor, range).map((partialToken) => ({
             ...partialToken,
             displayLine: displayLineMap.get(partialToken.range.start.line)!,
