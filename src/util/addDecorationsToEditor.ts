@@ -21,7 +21,7 @@ import { Range } from "vscode";
  *
  * TODO(pcohen): move into the IDE abstraction
  */
-function realVisibleRanges(): vscode.Range[] {
+function realVisibleRanges(fileName: string): vscode.Range[] {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const fs = require("fs");
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -32,8 +32,17 @@ function realVisibleRanges(): vscode.Range[] {
   const state = JSON.parse(
     fs.readFileSync(os.homedir() + "/.cursorless/editor-state.json")
   );
-  const activeEditorState = state["activeEditor"];
+  let activeEditorState;
 
+  state["editors"].forEach((editor: any) => {
+    if (editor["temporaryFilePath"] === fileName) {
+      activeEditorState = editor;
+    }
+  });
+
+  if (!activeEditorState) {
+    return [];
+  }
   // TODO(pcohen): add visibleRanges to the schema explicitly
   return [
     new Range(
@@ -68,7 +77,7 @@ export function addDecorationsToEditors(
   const tokens = concat(
     [],
     ...editors.map((editor) => {
-      const visibleRanges = isTesting() ? editor.visibleRanges : realVisibleRanges();
+      const visibleRanges = isTesting() ? editor.visibleRanges : realVisibleRanges(editor.document?.fileName);
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(
