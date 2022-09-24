@@ -45,7 +45,7 @@ export async function getExtensionApiStrict<T>(extensionId: string) {
 }
 
 export const getCursorlessApi = () =>
-  getExtensionApiStrict<CursorlessApi>("pokey.cursorless");
+  getExtensionApiStrict<CursorlessApi>("pokey-phillco.cursorless-fork");
 
 export const getParseTreeApi = () =>
   getExtensionApiStrict<ParseTreeApi>("pokey.parse-tree");
