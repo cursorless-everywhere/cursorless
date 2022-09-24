@@ -61,6 +61,21 @@ export class HatAllocator {
         this.addDecorationsDebounced
       )
     );
+
+    // NOTE(pcohen): this is just a hack until we have extension points between
+    // the sidecar and Cursorless.
+    // Update decorations on editor state change since we won't be scrolling the sidecar.
+    const watcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require("os").homedir() + "/.cursorless/",
+        "*-state.json"
+      )
+    );
+
+    watcher.onDidChange((uri) => {
+      this.addDecorationsDebounced()
+    });
   }
 
   private clearEditorDecorations(editor: vscode.TextEditor) {
