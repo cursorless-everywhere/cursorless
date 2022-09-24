@@ -1,4 +1,5 @@
 import { concat, flatten, maxBy, min } from "lodash";
+import isTesting from "../testUtil/isTesting";
 import * as vscode from "vscode";
 import { HatStyleName } from "../core/constants";
 import { getTokenMatcher } from "../core/tokenizer";
@@ -67,7 +68,7 @@ export function addDecorationsToEditors(
   const tokens = concat(
     [],
     ...editors.map((editor) => {
-      const visibleRanges = realVisibleRanges();
+      const visibleRanges = isTesting() ? editor.visibleRanges : realVisibleRanges();
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(
