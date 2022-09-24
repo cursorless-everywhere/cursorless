@@ -73,7 +73,7 @@ export class HatAllocator {
       )
     );
 
-    watcher.onDidChange((uri) => {
+    watcher.onDidChange((_) => {
       this.addDecorationsDebounced()
     });
   }
