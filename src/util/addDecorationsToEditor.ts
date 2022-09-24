@@ -199,6 +199,7 @@ export function addDecorationsToEditors(
   });
 
   // NOTE(pcohen): write out the hats now that we have changed them
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const fs = require("fs");
   const serialized: any = {};
 
@@ -212,6 +213,7 @@ export function addDecorationsToEditors(
     serialized[editor.document.uri.path] = result;
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const root = require("os").homedir() + "/.cursorless";
   if (!fs.existsSync(root)) {
     fs.mkdirSync(root);
@@ -220,7 +222,7 @@ export function addDecorationsToEditors(
   // then perform a move to the proper location. this *should* be atomic?
   // TODO: should we be deleting both of these files on cursorless startup?
   fs.writeFileSync(`${root}/.vscode-hats.json`, JSON.stringify(serialized));
-  fs.rename(`${root}/.vscode-hats.json`, `${root}/vscode-hats.json`, (err) => {
+  fs.rename(`${root}/.vscode-hats.json`, `${root}/vscode-hats.json`, (err: any) => {
     if (err) {
       throw err;
     }
