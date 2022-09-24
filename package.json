@@ -19,8 +19,8 @@
 			"description": "Tests"
 		}
 	],
-	"version": "0.50.57",
-	"publisher": "pokey-phillco",
+	"version": "0.50.64",
+	"publisher": "pokey",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
