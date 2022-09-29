@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Disposable } from "vscode";
 import { Graph } from "../typings/Types";
-import { addDecorationsToEditors } from "../util/addDecorationsToEditor";
+import { addDecorationsToEditors, getEverywhereInformation } from "../util/addDecorationsToEditor";
 import { IndividualHatMap } from "./IndividualHatMap";
 
 interface Context {
@@ -35,6 +35,10 @@ export class HatAllocator {
       vscode.commands.registerCommand(
         "cursorless.toggleDecorations",
         this.toggleDecorations
+      ),
+      vscode.commands.registerCommand(
+        "cursorless.getDecorations",
+         getEverywhereInformation,
       ),
 
       // An event that fires when a text document opens

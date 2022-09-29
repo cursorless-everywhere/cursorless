@@ -212,6 +212,7 @@ export function addDecorationsToEditors(
       );
     });
     serialized[editor.document.uri.path] = result;
+    _everyWhereInformation = result;
   });
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -237,4 +238,12 @@ export function addDecorationsToEditors(
       );
     });
   });
+}
+
+type EverwhereInformation ={
+    hats : any,
+}
+let _everyWhereInformation : EverwhereInformation = {hats:null};
+export function getEverywhereInformation() {
+  return _everyWhereInformation;
 }

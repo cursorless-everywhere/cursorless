@@ -19,7 +19,7 @@
 			"description": "Tests"
 		}
 	],
-	"version": "0.50.64",
+	"version": "0.50.67",
 	"publisher": "pokey-phillco",
 	"license": "MIT",
 	"repository": {
@@ -57,6 +57,10 @@
 			{
 				"command": "cursorless.command",
 				"title": "Cursorless: Perform command"
+			},
+			{
+				"command": "cursorless.getDecorations",
+				"title": "Cursorless: Retrieve decorations"
 			},
 			{
 				"command": "cursorless.toggleDecorations",
