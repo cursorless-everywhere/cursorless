@@ -1,7 +1,7 @@
 import { concat, flatten, maxBy, min } from "lodash";
 import isTesting from "../testUtil/isTesting";
 import * as vscode from "vscode";
-import { HatStyleName } from "../core/constants";
+import { HatStyleName } from "../core/hatStyles";
 import { getTokenMatcher } from "../core/tokenizer";
 import Decorations from "../core/Decorations";
 import { IndividualHatMap } from "../core/IndividualHatMap";
@@ -72,7 +72,9 @@ export function addDecorationsToEditors(
   const tokens = concat(
     [],
     ...editors.map((editor) => {
-      const visibleRanges = isTesting() ? editor.visibleRanges : realVisibleRanges(visibleRange);
+      const visibleRanges = isTesting()
+        ? editor.visibleRanges
+        : realVisibleRanges(visibleRange);
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(
@@ -228,11 +230,15 @@ export function addDecorationsToEditors(
   // then perform a move to the proper location. this *should* be atomic?
   // TODO: should we be deleting both of these files on cursorless startup?
   fs.writeFileSync(`${root}/.vscode-hats.json`, JSON.stringify(serialized));
-  fs.rename(`${root}/.vscode-hats.json`, `${root}/vscode-hats.json`, (err: any) => {
-    if (err) {
-      throw err;
+  fs.rename(
+    `${root}/.vscode-hats.json`,
+    `${root}/vscode-hats.json`,
+    (err: any) => {
+      if (err) {
+        throw err;
+      }
     }
-  });
+  );
 
   decorationRanges.forEach((ranges, editor) => {
     decorations.hatStyleNames.forEach((hatStyleName) => {

@@ -84,7 +84,7 @@ export class HatAllocator {
     );
 
     watcher.onDidChange((_) => {
-      this.addDecorationsDebounced()
+      this.addDecorationsDebounced();
     });
   }
 
