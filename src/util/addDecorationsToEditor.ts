@@ -21,12 +21,15 @@ import { Range } from "vscode";
  *
  * TODO(pcohen): move into the IDE abstraction
  */
-function realVisibleRanges(): vscode.Range[] {
+function realVisibleRanges(visibleRange:vscode.Range[]): vscode.Range[] {
+  if (visibleRange.length > 0) {
+    return visibleRange;
+  }
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const fs = require("fs");
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const os = require("os");
-
+ 
   // TODO(pcohen): eliminate this duplication with the sidecar extension
   // -- make the extensions talk to each other
   const state = JSON.parse(
@@ -48,7 +51,8 @@ function realVisibleRanges(): vscode.Range[] {
 export function addDecorationsToEditors(
   hatTokenMap: IndividualHatMap,
   decorations: Decorations,
-  tokenGraphemeSplitter: TokenGraphemeSplitter
+  tokenGraphemeSplitter: TokenGraphemeSplitter,
+  visibleRange : Range[]
 ) {
   hatTokenMap.clear();
 
@@ -68,7 +72,7 @@ export function addDecorationsToEditors(
   const tokens = concat(
     [],
     ...editors.map((editor) => {
-      const visibleRanges = isTesting() ? editor.visibleRanges : realVisibleRanges();
+      const visibleRanges = isTesting() ? editor.visibleRanges : realVisibleRanges(visibleRange);
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(

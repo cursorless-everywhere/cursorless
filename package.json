@@ -19,7 +19,7 @@
 			"description": "Tests"
 		}
 	],
-	"version": "0.50.67",
+	"version": "0.50.69",
 	"publisher": "pokey-phillco",
 	"license": "MIT",
 	"repository": {
@@ -61,6 +61,10 @@
 			{
 				"command": "cursorless.getDecorations",
 				"title": "Cursorless: Retrieve decorations"
+			},
+			{
+				"command": "cursorless.setVisibleRange",
+				"title": "Cursorless: Set visible range"
 			},
 			{
 				"command": "cursorless.toggleDecorations",
