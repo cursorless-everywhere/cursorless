@@ -22,6 +22,7 @@ scope_types = {
     "callee": "functionCallee",
     "class name": "className",
     "class": "class",
+    "command": "command",
     "comment": "comment",
     "funk name": "functionName",
     "funk": "namedFunction",
