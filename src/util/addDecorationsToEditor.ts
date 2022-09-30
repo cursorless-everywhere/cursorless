@@ -68,7 +68,9 @@ export function addDecorationsToEditors(
   const tokens = concat(
     [],
     ...editors.map((editor) => {
-      const visibleRanges = isTesting() ? editor.visibleRanges : realVisibleRanges();
+      const visibleRanges = isTesting()
+        ? editor.visibleRanges
+        : realVisibleRanges();
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(
@@ -223,11 +225,15 @@ export function addDecorationsToEditors(
   // then perform a move to the proper location. this *should* be atomic?
   // TODO: should we be deleting both of these files on cursorless startup?
   fs.writeFileSync(`${root}/.vscode-hats.json`, JSON.stringify(serialized));
-  fs.rename(`${root}/.vscode-hats.json`, `${root}/vscode-hats.json`, (err: any) => {
-    if (err) {
-      throw err;
+  fs.rename(
+    `${root}/.vscode-hats.json`,
+    `${root}/vscode-hats.json`,
+    (err: any) => {
+      if (err) {
+        throw err;
+      }
     }
-  });
+  );
 
   decorationRanges.forEach((ranges, editor) => {
     decorations.hatStyleNames.forEach((hatStyleName) => {
