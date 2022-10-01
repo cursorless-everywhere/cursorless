@@ -134,13 +134,8 @@ export class HatAllocator {
     this.addDecorationsDebounced();
   }
 
-  private setVisibleRange(visible:any){
-    const range = [ new Range(
-      visible.firstVisible,
-      0,
-      visible.lastVisible,
-      0
-    )]
+  private setVisibleRange(visible: any) {
+    const range = [new Range(visible.firstVisible, 0, visible.lastVisible, 0)];
     this.visibleRange = range;
   }
 
