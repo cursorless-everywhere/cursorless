@@ -26,6 +26,7 @@ export class HatAllocator {
     this.addDecorationsDebounced = this.addDecorationsDebounced.bind(this);
     this.toggleDecorations = this.toggleDecorations.bind(this);
     this.clearEditorDecorations = this.clearEditorDecorations.bind(this);
+    this.setVisibleRange = this.setVisibleRange.bind(this);
 
     this.disposalFunctions.push(
       graph.decorations.registerDecorationChangeListener(
@@ -130,8 +131,14 @@ export class HatAllocator {
     this.addDecorationsDebounced();
   }
 
-  private setVisibleRange(range:Range){
-    this.visibleRange = [range];
+  private setVisibleRange(visible:any){
+    const range = [ new Range(
+      visible.firstVisible,
+      0,
+      visible.lastVisible,
+      0
+    )]
+    this.visibleRange = range;
   }
 
   dispose() {
