@@ -21,7 +21,7 @@ import { Range } from "vscode";
  *
  * TODO(pcohen): move into the IDE abstraction
  */
-function realVisibleRanges(visibleRange:vscode.Range[]): vscode.Range[] {
+function realVisibleRanges(visibleRange: vscode.Range[]): vscode.Range[] {
   if (visibleRange.length > 0) {
     return visibleRange;
   }
@@ -29,7 +29,7 @@ function realVisibleRanges(visibleRange:vscode.Range[]): vscode.Range[] {
   const fs = require("fs");
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const os = require("os");
- 
+
   // TODO(pcohen): eliminate this duplication with the sidecar extension
   // -- make the extensions talk to each other
   const state = JSON.parse(
@@ -52,7 +52,7 @@ export function addDecorationsToEditors(
   hatTokenMap: IndividualHatMap,
   decorations: Decorations,
   tokenGraphemeSplitter: TokenGraphemeSplitter,
-  visibleRange : Range[]
+  visibleRange: Range[]
 ) {
   hatTokenMap.clear();
 
@@ -250,10 +250,10 @@ export function addDecorationsToEditors(
   });
 }
 
-type EverwhereInformation ={
-    hats : any,
-}
-let _everyWhereInformation : EverwhereInformation = {hats:null};
+type EverwhereInformation = {
+  hats: any;
+};
+let _everyWhereInformation: EverwhereInformation = { hats: null };
 export function getEverywhereInformation() {
   return _everyWhereInformation;
 }

@@ -1,7 +1,10 @@
 import * as vscode from "vscode";
 import { Disposable } from "vscode";
 import { Graph } from "../typings/Types";
-import { addDecorationsToEditors, getEverywhereInformation } from "../util/addDecorationsToEditor";
+import {
+  addDecorationsToEditors,
+  getEverywhereInformation,
+} from "../util/addDecorationsToEditor";
 import { IndividualHatMap } from "./IndividualHatMap";
 import { Range } from "vscode";
 
@@ -14,7 +17,7 @@ export class HatAllocator {
   private isActive: boolean;
   private disposables: Disposable[] = [];
   private disposalFunctions: (() => void)[] = [];
-  private visibleRange:Range[];
+  private visibleRange: Range[];
 
   constructor(private graph: Graph, private context: Context) {
     graph.extensionContext.subscriptions.push(this);
@@ -41,7 +44,7 @@ export class HatAllocator {
       ),
       vscode.commands.registerCommand(
         "cursorless.getDecorations",
-         getEverywhereInformation,
+        getEverywhereInformation
       ),
       vscode.commands.registerCommand(
         "cursorless.setVisibleRange",
@@ -77,7 +80,7 @@ export class HatAllocator {
     // the sidecar and Cursorless.
     // Update decorations on editor state change since we won't be scrolling the sidecar.
     const watcher = vscode.workspace.createFileSystemWatcher(
-           new vscode.RelativePattern(
+      new vscode.RelativePattern(
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require("os").homedir() + "/.cursorless/",
         "*-state.json"
