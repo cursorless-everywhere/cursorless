@@ -224,20 +224,21 @@ export function addDecorationsToEditors(
   const serialized: any = {};
 
   decorationRanges.forEach((ranges, editor) => {
-    if (editor.document.uri ===  vscode.window.activeTextEditor?.document.uri){
-    const result: any = {};
-    decorations.hatStyleNames.forEach((hatStyleName) => {
-      result[hatStyleName] = ranges[hatStyleName]!.map((r) =>
-        rangeToPlainObjectWithOffsets(r, editor)
-      );
-    });
-    serialized[editor.document.uri.path] = result;
-    _everyWhereInformation = {
-      hats: result,
-      versionIdentifier: randomUUID().toString(),
-      hatDocumentName: editor.document.uri.path
-    };
-  }});
+    if (editor.document.uri === vscode.window.activeTextEditor?.document.uri) {
+      const result: any = {};
+      decorations.hatStyleNames.forEach((hatStyleName) => {
+        result[hatStyleName] = ranges[hatStyleName]!.map((r) =>
+          rangeToPlainObjectWithOffsets(r, editor)
+        );
+      });
+      serialized[editor.document.uri.path] = result;
+      _everyWhereInformation = {
+        hats: result,
+        versionIdentifier: randomUUID().toString(),
+        hatDocumentName: editor.document.uri.path,
+      };
+    }
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const root = require("os").homedir() + "/.cursorless";
