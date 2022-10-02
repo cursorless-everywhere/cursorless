@@ -59,14 +59,6 @@
 				"title": "Cursorless: Perform command"
 			},
 			{
-				"command": "cursorless.getDecorations",
-				"title": "Cursorless: Retrieve decorations"
-			},
-			{
-				"command": "cursorless.setVisibleRange",
-				"title": "Cursorless: Set visible range"
-			},
-			{
 				"command": "cursorless.toggleDecorations",
 				"title": "Cursorless: Toggle decorations"
 			},
