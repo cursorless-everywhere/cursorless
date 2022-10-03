@@ -12,6 +12,9 @@ import { getDisplayLineMap } from "./getDisplayLineMap";
 import { getTokenComparator } from "./getTokenComparator";
 import { getTokensInRange } from "./getTokensInRange";
 import { Range } from "vscode";
+import { randomUUID } from "crypto";
+import * as os from "os";
+import * as fs from "fs";
 
 /**
  * Returns the visible ranges from the actual editor for Cursorless Everywhere, so we can use them
@@ -21,17 +24,30 @@ import { Range } from "vscode";
  *
  * TODO(pcohen): move into the IDE abstraction
  */
-function realVisibleRanges(): vscode.Range[] {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const fs = require("fs");
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const os = require("os");
+function realVisibleRanges(
+  visibleRange: vscode.Range[],
+  editorRange: vscode.Range[]
+): vscode.Range[] {
+  if (visibleRange.length > 0) {
+    return visibleRange;
+  }
 
+  //If state file not present and no visible range supplied then fall back to
+  //editor range.
+  try {
+    return getRangeFromFile();
+  } catch (e) {
+    return editorRange;
+  }
+}
+
+function getRangeFromFile(): vscode.Range[] {
   // TODO(pcohen): eliminate this duplication with the sidecar extension
   // -- make the extensions talk to each other
-  const state = JSON.parse(
-    fs.readFileSync(os.homedir() + "/.cursorless/editor-state.json")
+  const buffer = fs.readFileSync(
+    os.homedir() + "/.cursorless/editor-state.json"
   );
+  const state = JSON.parse(Buffer.from(buffer).toString("utf8"));
   const activeEditorState = state["activeEditor"];
 
   // TODO(pcohen): add visibleRanges to the schema explicitly
@@ -48,7 +64,8 @@ function realVisibleRanges(): vscode.Range[] {
 export function addDecorationsToEditors(
   hatTokenMap: IndividualHatMap,
   decorations: Decorations,
-  tokenGraphemeSplitter: TokenGraphemeSplitter
+  tokenGraphemeSplitter: TokenGraphemeSplitter,
+  visibleRange: Range[]
 ) {
   hatTokenMap.clear();
 
@@ -70,7 +87,7 @@ export function addDecorationsToEditors(
     ...editors.map((editor) => {
       const visibleRanges = isTesting()
         ? editor.visibleRanges
-        : realVisibleRanges();
+        : realVisibleRanges(visibleRange, editor.visibleRanges);
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(
@@ -206,6 +223,7 @@ export function addDecorationsToEditors(
   const fs = require("fs");
   const serialized: any = {};
 
+  _everyWhereInformation = [];
   decorationRanges.forEach((ranges, editor) => {
     const result: any = {};
     decorations.hatStyleNames.forEach((hatStyleName) => {
@@ -214,6 +232,11 @@ export function addDecorationsToEditors(
       );
     });
     serialized[editor.document.uri.path] = result;
+    _everyWhereInformation.push({
+      hats: result,
+      versionIdentifier: randomUUID().toString(),
+      hatDocumentName: editor.document.uri.path,
+    });
   });
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -243,4 +266,20 @@ export function addDecorationsToEditors(
       );
     });
   });
+}
+
+type EverwhereInformation = {
+  hats: any;
+  versionIdentifier: string;
+  hatDocumentName: string;
+};
+let _everyWhereInformation: EverwhereInformation[] = [
+  {
+    hats: null,
+    versionIdentifier: randomUUID().toString(),
+    hatDocumentName: "unknown",
+  },
+];
+export function getEverywhereInformation() {
+  return _everyWhereInformation;
 }

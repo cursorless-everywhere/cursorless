@@ -1,8 +1,12 @@
 import * as vscode from "vscode";
 import { Disposable } from "vscode";
 import { Graph } from "../typings/Types";
-import { addDecorationsToEditors } from "../util/addDecorationsToEditor";
+import {
+  addDecorationsToEditors,
+  getEverywhereInformation,
+} from "../util/addDecorationsToEditor";
 import { IndividualHatMap } from "./IndividualHatMap";
+import { Range } from "vscode";
 
 interface Context {
   getActiveMap(): Promise<IndividualHatMap>;
@@ -13,10 +17,11 @@ export class HatAllocator {
   private isActive: boolean;
   private disposables: Disposable[] = [];
   private disposalFunctions: (() => void)[] = [];
+  private visibleRange: Range[];
 
   constructor(private graph: Graph, private context: Context) {
     graph.extensionContext.subscriptions.push(this);
-
+    this.visibleRange = [];
     this.isActive = vscode.workspace
       .getConfiguration("cursorless")
       .get<boolean>("showOnStart")!;
@@ -24,6 +29,7 @@ export class HatAllocator {
     this.addDecorationsDebounced = this.addDecorationsDebounced.bind(this);
     this.toggleDecorations = this.toggleDecorations.bind(this);
     this.clearEditorDecorations = this.clearEditorDecorations.bind(this);
+    this.setVisibleRange = this.setVisibleRange.bind(this);
 
     this.disposalFunctions.push(
       graph.decorations.registerDecorationChangeListener(
@@ -35,6 +41,14 @@ export class HatAllocator {
       vscode.commands.registerCommand(
         "cursorless.toggleDecorations",
         this.toggleDecorations
+      ),
+      vscode.commands.registerCommand(
+        "cursorless.getDecorations",
+        getEverywhereInformation
+      ),
+      vscode.commands.registerCommand(
+        "cursorless.setVisibleRange",
+        this.setVisibleRange
       ),
 
       // An event that fires when a text document opens
@@ -91,7 +105,8 @@ export class HatAllocator {
       addDecorationsToEditors(
         activeMap,
         this.graph.decorations,
-        this.graph.tokenGraphemeSplitter
+        this.graph.tokenGraphemeSplitter,
+        this.visibleRange
       );
     } else {
       vscode.window.visibleTextEditors.forEach(this.clearEditorDecorations);
@@ -117,6 +132,11 @@ export class HatAllocator {
   private toggleDecorations() {
     this.isActive = !this.isActive;
     this.addDecorationsDebounced();
+  }
+
+  private setVisibleRange(visible: any) {
+    const range = [new Range(visible.firstVisible, 0, visible.lastVisible, 0)];
+    this.visibleRange = range;
   }
 
   dispose() {
