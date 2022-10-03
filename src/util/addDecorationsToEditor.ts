@@ -223,8 +223,9 @@ export function addDecorationsToEditors(
   const fs = require("fs");
   const serialized: any = {};
 
+  _everyWhereInformation = [];
   decorationRanges.forEach((ranges, editor) => {
-    if (editor.document.uri ===  vscode.window.activeTextEditor?.document.uri){
+   
     const result: any = {};
     decorations.hatStyleNames.forEach((hatStyleName) => {
       result[hatStyleName] = ranges[hatStyleName]!.map((r) =>
@@ -232,12 +233,12 @@ export function addDecorationsToEditors(
       );
     });
     serialized[editor.document.uri.path] = result;
-    _everyWhereInformation = {
+    _everyWhereInformation.push({
       hats: result,
       versionIdentifier: randomUUID().toString(),
       hatDocumentName: editor.document.uri.path
-    };
-  }});
+    });
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const root = require("os").homedir() + "/.cursorless";
@@ -273,11 +274,11 @@ type EverwhereInformation = {
   versionIdentifier: string;
   hatDocumentName: string;
 };
-let _everyWhereInformation: EverwhereInformation = {
+let _everyWhereInformation: EverwhereInformation[] = [{
   hats: null,
   versionIdentifier: randomUUID().toString(),
   hatDocumentName: "unknown",
-};
+}];
 export function getEverywhereInformation() {
   return _everyWhereInformation;
 }
