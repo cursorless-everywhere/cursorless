@@ -225,7 +225,6 @@ export function addDecorationsToEditors(
 
   _everyWhereInformation = [];
   decorationRanges.forEach((ranges, editor) => {
-   
     const result: any = {};
     decorations.hatStyleNames.forEach((hatStyleName) => {
       result[hatStyleName] = ranges[hatStyleName]!.map((r) =>
@@ -236,7 +235,7 @@ export function addDecorationsToEditors(
     _everyWhereInformation.push({
       hats: result,
       versionIdentifier: randomUUID().toString(),
-      hatDocumentName: editor.document.uri.path
+      hatDocumentName: editor.document.uri.path,
     });
   });
 
@@ -274,11 +273,13 @@ type EverwhereInformation = {
   versionIdentifier: string;
   hatDocumentName: string;
 };
-let _everyWhereInformation: EverwhereInformation[] = [{
-  hats: null,
-  versionIdentifier: randomUUID().toString(),
-  hatDocumentName: "unknown",
-}];
+let _everyWhereInformation: EverwhereInformation[] = [
+  {
+    hats: null,
+    versionIdentifier: randomUUID().toString(),
+    hatDocumentName: "unknown",
+  },
+];
 export function getEverywhereInformation() {
   return _everyWhereInformation;
 }
