@@ -1,6 +1,7 @@
 import { concat, flatten, maxBy, min } from "lodash";
 import isTesting from "../testUtil/isTesting";
 import * as vscode from "vscode";
+import { Range } from "vscode";
 import { HatStyleName } from "../core/hatStyles";
 import { getTokenMatcher } from "../core/tokenizer";
 import Decorations from "../core/Decorations";
@@ -11,28 +12,40 @@ import { Token } from "../typings/Types";
 import { getDisplayLineMap } from "./getDisplayLineMap";
 import { getTokenComparator } from "./getTokenComparator";
 import { getTokensInRange } from "./getTokensInRange";
-import { Range } from "vscode";
+import * as fs from "fs";
+import * as os from "os";
 
 /**
- * Returns the visible ranges from the actual editor for Cursorless Everywhere, so we can use them
+ * Returns the visible ranges from the actual editor for Cursorless Everywhere
+ * for the given editor path (which is the temporary filepath) so we can use them
  * instead of VS Code's active ranges.
  *
  * This way, the size of the sidecar is irrelevant.
  *
  * TODO(pcohen): move into the IDE abstraction
  */
-function realVisibleRanges(): vscode.Range[] {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const fs = require("fs");
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const os = require("os");
-
+function realVisibleRanges(fileName: string): vscode.Range[] {
   // TODO(pcohen): eliminate this duplication with the sidecar extension
   // -- make the extensions talk to each other
   const state = JSON.parse(
-    fs.readFileSync(os.homedir() + "/.cursorless/editor-state.json")
+    fs.readFileSync(os.homedir() + "/.cursorless/editor-state.json", "utf-8")
   );
-  const activeEditorState = state["activeEditor"];
+
+  let activeEditorState;
+
+  if (state.editors) {
+    activeEditorState = state.editors.find(
+      (e: any) => e && e["temporaryFilePath"] === fileName
+    );
+  } else if (state["activeEditor"]) {
+    // fallback to the old object definition of activeEditor
+    activeEditorState = state["activeEditor"];
+  } else {
+    vscode.window.showInformationMessage(
+      `Unable to find an editor state for ${fileName}!`
+    );
+    return [];
+  }
 
   // TODO(pcohen): add visibleRanges to the schema explicitly
   return [
@@ -70,7 +83,7 @@ export function addDecorationsToEditors(
     ...editors.map((editor) => {
       const visibleRanges = isTesting()
         ? editor.visibleRanges
-        : realVisibleRanges();
+        : realVisibleRanges(editor.document?.fileName);
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(
