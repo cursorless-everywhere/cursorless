@@ -2,8 +2,9 @@ import tempfile
 import webbrowser
 from pathlib import Path
 
-from talon import Context, Module, actions, app
+from talon import Context, Module, app
 
+from ..cursorless_command_server import run_rpc_command_and_wait
 from .get_list import get_list, get_lists
 from .sections.actions import get_actions
 from .sections.compound_targets import get_compound_targets
@@ -14,7 +15,7 @@ from .sections.special_marks import get_special_marks
 mod = Module()
 ctx = Context()
 ctx.matches = r"""
-app: vscode
+tag: user.cursorless
 """
 
 cheatsheet_out_dir = Path(tempfile.mkdtemp())
@@ -29,6 +30,12 @@ class Actions:
             'Please first focus an app that supports cursorless, eg say "focus code"'
         )
 
+    def cursorless_cheat_sheet_update_json():
+        """Update default cursorless cheatsheet json (for developer use only)"""
+        app.notify(
+            'Please first focus an app that supports cursorless, eg say "focus code"'
+        )
+
     def cursorless_open_instructions():
         """Open web page with cursorless instructions"""
         webbrowser.open(instructions_url)
@@ -39,7 +46,7 @@ class Actions:
     def cursorless_cheat_sheet_show_html():
         """Show new cursorless html cheat sheet"""
         cheatsheet_out_path = cheatsheet_out_dir / "cheatsheet.html"
-        actions.user.vscode_with_plugin_and_wait(
+        run_rpc_command_and_wait(
             "cursorless.showCheatsheet",
             {
                 "version": 0,
@@ -48,6 +55,13 @@ class Actions:
             },
         )
         webbrowser.open(cheatsheet_out_path.as_uri())
+
+    def cursorless_cheat_sheet_update_json():
+        """Update default cursorless cheatsheet json (for developer use only)"""
+        run_rpc_command_and_wait(
+            "cursorless.internal.updateCheatsheetDefaults",
+            cursorless_cheat_sheet_get_json(),
+        )
 
 
 def cursorless_cheat_sheet_get_json():

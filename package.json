@@ -19,7 +19,7 @@
 			"description": "Tests"
 		}
 	],
-	"version": "0.50.64",
+	"version": "0.50.65",
 	"publisher": "pokey-phillco",
 	"license": "MIT",
 	"repository": {
@@ -597,6 +597,7 @@
 	},
 	"dependencies": {
 		"@types/lodash": "^4.14.168",
+		"immer": "^9.0.15",
 		"immutability-helper": "^3.1.1",
 		"lodash": "^4.17.21",
 		"node-html-parser": "^5.3.3"

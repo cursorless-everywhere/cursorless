@@ -5,14 +5,6 @@ set -e
 # Remove any previously compiled versions.
 rm *.vsix || true
 
-# Bump the version to ensure that it gets upgraded.
-echo "================================================================================"
-echo "Bumping version..."
-echo "================================================================================"
-
-npm version patch --force --commit-hooks false --git-tag-version false
-
-echo ""
 echo "================================================================================"
 echo "Packaging extension..."
 echo "================================================================================"
@@ -24,6 +16,8 @@ echo "==========================================================================
 echo "Installing extension..."
 echo "================================================================================"
 
+# Uninstalling the old version seems to be necessary to force Code to pick up the new version reliably.
+code --uninstall-extension pokey-phillco.cursorless-fork
 code --install-extension *.vsix
 
 echo ""
