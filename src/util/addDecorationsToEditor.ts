@@ -14,6 +14,25 @@ import { getTokenComparator } from "./getTokenComparator";
 import { getTokensInRange } from "./getTokensInRange";
 import * as fs from "fs";
 import * as os from "os";
+import * as path from "path";
+
+const CURSORLESS_ROOT = path.join(os.homedir(), ".cursorless");
+const CURSORLESS_PREFIX = process.env.CURSORLESS_PREFIX || "";
+if (CURSORLESS_PREFIX) {
+  vscode.window.showInformationMessage(
+    `Cursorless using filename prefix: ${CURSORLESS_PREFIX}`
+  );
+}
+
+try {
+  if (!fs.existsSync(CURSORLESS_ROOT)) {
+    fs.mkdirSync(CURSORLESS_ROOT);
+  }
+} catch (e) {
+  vscode.window.showErrorMessage(
+    `Error creating ${CURSORLESS_ROOT} (nonfatal): ${e}`
+  );
+}
 
 /**
  * Returns the visible ranges from the actual editor for Cursorless Everywhere
@@ -28,7 +47,10 @@ function realVisibleRanges(fileName: string): vscode.Range[] {
   // TODO(pcohen): eliminate this duplication with the sidecar extension
   // -- make the extensions talk to each other
   const state = JSON.parse(
-    fs.readFileSync(os.homedir() + "/.cursorless/editor-state.json", "utf-8")
+    fs.readFileSync(
+      path.join(CURSORLESS_ROOT, `${CURSORLESS_PREFIX}editor-state.json`),
+      "utf-8"
+    )
   );
 
   let activeEditorState;
@@ -215,8 +237,6 @@ export function addDecorationsToEditors(
   });
 
   // NOTE(pcohen): write out the hats now that we have changed them
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const fs = require("fs");
   const serialized: any = {};
 
   decorationRanges.forEach((ranges, editor) => {
@@ -229,28 +249,24 @@ export function addDecorationsToEditors(
     serialized[editor.document.uri.path] = result;
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const root = require("os").homedir() + "/.cursorless";
-  if (!fs.existsSync(root)) {
-    fs.mkdirSync(root);
-  }
+  const hatsFileName = `${CURSORLESS_PREFIX}vscode-hats.json`;
+  const hatsFilePath = path.join(CURSORLESS_ROOT, hatsFileName);
+  const tempHatsFilePath = path.join(CURSORLESS_ROOT, `.${hatsFileName}`);
 
   try {
     // write to a hidden file first so eager file watchers don't get partial files.
     // then perform a move to the proper location. this *should* be atomic?
     // TODO: should we be deleting both of these files on cursorless startup?
-    fs.writeFileSync(`${root}/.vscode-hats.json`, JSON.stringify(serialized));
-    fs.rename(
-      `${root}/.vscode-hats.json`,
-      `${root}/vscode-hats.json`,
-      (err: any) => {
-        if (err) {
-          throw err;
-        }
+    fs.writeFileSync(tempHatsFilePath, JSON.stringify(serialized));
+    fs.rename(tempHatsFilePath, hatsFilePath, (err: any) => {
+      if (err) {
+        throw err;
       }
-    );
+    });
   } catch (e) {
-    vscode.window.showErrorMessage(`Error writing hats file (nonfatal): ${e}`);
+    vscode.window.showErrorMessage(
+      `Error writing ${hatsFilePath} (nonfatal): ${e}`
+    );
   }
 
   decorationRanges.forEach((ranges, editor) => {
