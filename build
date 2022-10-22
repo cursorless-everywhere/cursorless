@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -ex
 
 # Remove any previously compiled versions.
 rm *.vsix || true
@@ -17,8 +17,14 @@ echo "Installing extension..."
 echo "================================================================================"
 
 # Uninstalling the old version seems to be necessary to force Code to pick up the new version reliably.
-code --uninstall-extension pokey-phillco.cursorless-fork
+code --uninstall-extension pokey-phillco.cursorless-fork || true
 code --install-extension *.vsix
+
+if [[ -x "$(command -v code-insiders)" ]]; then
+  # Also install into insiders, if it exists.
+  code-insiders --uninstall-extension pokey-phillco.cursorless-fork || true
+  code-insiders --install-extension *.vsix
+fi
 
 echo ""
 echo "================================================================================"
