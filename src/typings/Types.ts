@@ -174,6 +174,17 @@ export interface Graph {
    * Used to interact with the ide
    */
   readonly ide: IDE;
+
+  /**
+   * Whether we should run as a sidecar for Cursorless Everywhere
+   */
+  readonly useSidecar: boolean;
+
+  /**
+   * If running as a sidecar, this optional prefix is applied to state files and the command socket
+   * to allow for running multiple instances.
+   */
+  readonly sidecarPrefix: string;
 }
 
 export type NodeMatcherValue = {

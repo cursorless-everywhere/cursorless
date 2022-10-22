@@ -6,6 +6,9 @@ import { ThatMark } from "./core/ThatMark";
 import { getCommandServerApi, getParseTreeApi } from "./util/getExtensionApi";
 import isTesting from "./testUtil/isTesting";
 import CommandRunner from "./core/commandRunner/CommandRunner";
+import { registerFileWatchers } from "./sidecar/synchronization";
+import { startCommandServer } from "./sidecar/commandServer";
+import { shouldBeSidecar, sidecarPrefix } from "./sidecar/environment";
 
 /**
  * Extension entrypoint called by VSCode on Cursorless startup.
@@ -16,17 +19,17 @@ import CommandRunner from "./core/commandRunner/CommandRunner";
  * - Creates an entrypoint for running commands {@link CommandRunner}.
  */
 export async function activate(context: vscode.ExtensionContext) {
-  // NOTE(pcohen): can be used to debug code reloading issues
-  // vscode.window.showInformationMessage("cursorless-everywhere fork started (v10)!");
-
   const { getNodeAtLocation } = await getParseTreeApi();
   const commandServerApi = await getCommandServerApi();
+  const useSidecar = shouldBeSidecar(context);
 
   const graph = makeGraph({
     ...graphFactories,
     extensionContext: () => context,
     commandServerApi: () => commandServerApi,
     getNodeAtLocation: () => getNodeAtLocation,
+    useSidecar: () => useSidecar,
+    sidecarPrefix: () => sidecarPrefix(),
   } as FactoryMap<Graph>);
   graph.debug.init();
   graph.snippets.init();
@@ -86,6 +89,17 @@ export async function activate(context: vscode.ExtensionContext) {
         `Modification outside of viewport at lines: ${linesText}`
       );
     }
+  }
+
+  if (graph.useSidecar) {
+    registerFileWatchers();
+    startCommandServer();
+
+    vscode.window.showInformationMessage(
+      `Cursorless has successfully started in sidecar mode!${
+        graph.sidecarPrefix ? ` (prefix: ${graph.sidecarPrefix})` : ""
+      }`
+    );
   }
 
   return {

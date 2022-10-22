@@ -17,14 +17,11 @@ import * as os from "os";
 import * as path from "path";
 
 const CURSORLESS_ROOT = path.join(os.homedir(), ".cursorless");
+// TODO(pcohen): move to reading the graph
 const CURSORLESS_PREFIX = process.env.CURSORLESS_PREFIX || "";
-if (CURSORLESS_PREFIX) {
-  vscode.window.showInformationMessage(
-    `Cursorless using filename prefix: ${CURSORLESS_PREFIX}`
-  );
-}
 
 try {
+  // TODO(pcohen): move to extension initialization
   if (!fs.existsSync(CURSORLESS_ROOT)) {
     fs.mkdirSync(CURSORLESS_ROOT);
   }
@@ -59,9 +56,11 @@ function realVisibleRanges(fileName: string): vscode.Range[] {
   } else if (state["activeEditor"]) {
     // fallback to the old object definition of activeEditor
     activeEditorState = state["activeEditor"];
-  } else {
-    vscode.window.showInformationMessage(
-      `Unable to find an editor state for ${fileName}!`
+  }
+
+  if (!activeEditorState) {
+    vscode.window.showErrorMessage(
+      `Unable to find an editor state for ${path.basename(fileName)}!`
     );
     return [];
   }
@@ -80,7 +79,8 @@ function realVisibleRanges(fileName: string): vscode.Range[] {
 export function addDecorationsToEditors(
   hatTokenMap: IndividualHatMap,
   decorations: Decorations,
-  tokenGraphemeSplitter: TokenGraphemeSplitter
+  tokenGraphemeSplitter: TokenGraphemeSplitter,
+  useSideCar: boolean
 ) {
   hatTokenMap.clear();
 
@@ -100,9 +100,9 @@ export function addDecorationsToEditors(
   const tokens = concat(
     [],
     ...editors.map((editor) => {
-      const visibleRanges = isTesting()
-        ? editor.visibleRanges
-        : realVisibleRanges(editor.document?.fileName);
+      const visibleRanges = useSideCar
+        ? realVisibleRanges(editor.document?.fileName)
+        : editor.visibleRanges;
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
       const languageId = editor.document.languageId;
       const tokens: Token[] = flatten(
