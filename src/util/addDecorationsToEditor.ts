@@ -47,10 +47,7 @@ function realVisibleRanges(fileName: string): vscode.Range[] {
   // TODO(pcohen): eliminate this duplication with the sidecar extension
   // -- make the extensions talk to each other
   const state = JSON.parse(
-    fs.readFileSync(
-      path.join(CURSORLESS_ROOT, `${CURSORLESS_PREFIX}editor-state.json`),
-      "utf-8"
-    )
+    fs.readFileSync(path.join(CURSORLESS_ROOT, `editor-state.json`), "utf-8")
   );
 
   let activeEditorState;
