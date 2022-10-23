@@ -39,7 +39,7 @@ async function handleRequest(requestObj: any) {
         return { response: "OK" };
       case "command":
         return { result: await runVSCodeCommand(requestObj) };
-      case "cursorless":
+      case "cursorless": {
         // NOTE(pcohen): this need not be Cursorless specific; perhaps a better command name might be
         // along the lines of "execute command and serialize state"
 
@@ -70,6 +70,7 @@ async function handleRequest(requestObj: any) {
             commandException: `${e}`,
           };
         }
+      }
       case "pid":
         return `${process.pid}`;
       default:
@@ -93,7 +94,12 @@ export function startCommandServer() {
     try {
       // make sure the file is deleted first.
       fs.unlinkSync(socketPath);
-    } catch (e) {}
+    } catch (e) {
+      console.log("unable to delete socket file", e);
+      vscode.window.showErrorMessage(
+        `Unable to delete socket file at ${socketPath}: ${e}`
+      );
+    }
 
     const unixSocketServer = net.createServer();
     unixSocketServer.listen(socketPath, () => {
