@@ -1,4 +1,3 @@
-import { window } from "vscode";
 import { ActionType } from "../../actions/actions.types";
 import { OutdatedExtensionError } from "../../errors";
 import {

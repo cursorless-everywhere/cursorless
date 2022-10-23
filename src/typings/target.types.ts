@@ -5,17 +5,8 @@ import type { Range, Selection, TextEditor } from "vscode";
 // - https://github.com/microsoft/TypeScript/issues/43869
 // - https://github.com/microsoft/TypeScript/issues/43950
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type ModifyIfUntypedStage from "../processTargets/modifiers/ModifyIfUntypedStage";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { SnippetVariable, Snippet } from "./snippet";
-import type {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ScopeTypeTarget,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TokenTarget,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  UntypedTarget,
-} from "../processTargets/targets";
+
 import type { Position } from "./targetDescriptor.types";
 import type { EditWithRangeUpdater } from "./Types";
 

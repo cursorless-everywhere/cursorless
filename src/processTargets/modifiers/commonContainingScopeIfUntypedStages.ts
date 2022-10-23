@@ -5,7 +5,6 @@ import ModifyIfUntypedStage from "./ModifyIfUntypedStage";
 // - https://github.com/microsoft/TypeScript/issues/43869
 // - https://github.com/microsoft/TypeScript/issues/43950
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Target } from "../../typings/target.types";
 
 /**
  * Expands the given target to the nearest containing surrounding pair if the
