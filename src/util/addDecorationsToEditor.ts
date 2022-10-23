@@ -1,9 +1,6 @@
 import { concat, flatten, maxBy, min } from "lodash";
-import isTesting from "../testUtil/isTesting";
 import * as vscode from "vscode";
 import { Range } from "vscode";
-import { HatStyleName } from "../core/hatStyles";
-import { getTokenMatcher } from "../core/tokenizer";
 import Decorations from "../core/Decorations";
 import { HatStyleName } from "../core/hatStyles";
 import { IndividualHatMap } from "../core/IndividualHatMap";
