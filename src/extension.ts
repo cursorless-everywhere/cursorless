@@ -7,9 +7,11 @@ import { getCommandServerApi, getParseTreeApi } from "./util/getExtensionApi";
 import { globalStateKeys } from "./util/globalStateKeys";
 import graphFactories from "./util/graphFactories";
 import makeGraph, { FactoryMap } from "./util/makeGraph";
-import { registerFileWatchers } from "./sidecar/synchronization";
-import { startCommandServer } from "./sidecar/commandServer";
-import { shouldBeSidecar, sidecarPrefix } from "./sidecar/environment";
+import {
+  shouldBeSidecar,
+  sidecarPrefix,
+  sidecarSetup,
+} from "./sidecar/environment";
 
 /**
  * Extension entrypoint called by VSCode on Cursorless startup.
@@ -55,14 +57,7 @@ export async function activate(context: vscode.ExtensionContext) {
   new CommandRunner(graph, thatMark, sourceMark);
 
   if (graph.useSidecar) {
-    registerFileWatchers();
-    startCommandServer();
-
-    vscode.window.showInformationMessage(
-      `Cursorless has successfully started in sidecar mode!${
-        graph.sidecarPrefix ? ` (prefix: ${graph.sidecarPrefix})` : ""
-      }`
-    );
+    sidecarSetup(graph);
   }
 
   return {

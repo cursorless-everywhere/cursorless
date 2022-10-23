@@ -12,23 +12,11 @@ import { getDisplayLineMap } from "./getDisplayLineMap";
 import { getTokenComparator } from "./getTokenComparator";
 import { getTokensInRange } from "./getTokensInRange";
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
+import { CURSORLESS_ROOT_DIRECTORY } from "../sidecar/constants";
 
-const CURSORLESS_ROOT = path.join(os.homedir(), ".cursorless");
 // TODO(pcohen): move to reading the graph
 const CURSORLESS_PREFIX = process.env.CURSORLESS_PREFIX || "";
-
-try {
-  // TODO(pcohen): move to extension initialization
-  if (!fs.existsSync(CURSORLESS_ROOT)) {
-    fs.mkdirSync(CURSORLESS_ROOT);
-  }
-} catch (e) {
-  vscode.window.showErrorMessage(
-    `Error creating ${CURSORLESS_ROOT} (nonfatal): ${e}`
-  );
-}
 
 /**
  * Returns the visible ranges from the actual editor for Cursorless Everywhere
@@ -43,7 +31,10 @@ function realVisibleRanges(fileName: string): vscode.Range[] {
   // TODO(pcohen): eliminate this duplication with the sidecar extension
   // -- make the extensions talk to each other
   const state = JSON.parse(
-    fs.readFileSync(path.join(CURSORLESS_ROOT, `editor-state.json`), "utf-8")
+    fs.readFileSync(
+      path.join(CURSORLESS_ROOT_DIRECTORY, `editor-state.json`),
+      "utf-8"
+    )
   );
 
   let activeEditorState;
@@ -249,8 +240,11 @@ export function addDecorationsToEditors(
   });
 
   const hatsFileName = `${CURSORLESS_PREFIX}vscode-hats.json`;
-  const hatsFilePath = path.join(CURSORLESS_ROOT, hatsFileName);
-  const tempHatsFilePath = path.join(CURSORLESS_ROOT, `.${hatsFileName}`);
+  const hatsFilePath = path.join(CURSORLESS_ROOT_DIRECTORY, hatsFileName);
+  const tempHatsFilePath = path.join(
+    CURSORLESS_ROOT_DIRECTORY,
+    `.${hatsFileName}`
+  );
 
   try {
     // write to a hidden file first so eager file watchers don't get partial files.
