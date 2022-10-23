@@ -49,6 +49,7 @@ scope_types = {
     "type": "type",
     "value": "value",
     "condition": "condition",
+    "unit": "unit",
     #  XML, JSX
     "element": "xmlElement",
     "tags": "xmlBothTags",
@@ -57,6 +58,7 @@ scope_types = {
     # Text-based scope types
     "char": "character",
     "word": "word",
+    "identifier": "identifier",
     "block": "paragraph",
     "cell": "notebookCell",
     "file": "document",

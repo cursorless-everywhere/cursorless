@@ -172,8 +172,9 @@ export interface Graph {
 
   /**
    * Used to interact with the ide
+   * NB: We make ide mutable to allow spying
    */
-  readonly ide: IDE;
+  ide: IDE;
 
   /**
    * Whether we should run as a sidecar for Cursorless Everywhere
