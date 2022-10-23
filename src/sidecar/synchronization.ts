@@ -160,11 +160,11 @@ export function registerFileWatchers() {
     new vscode.RelativePattern(CURSORLESS_ROOT_DIRECTORY, "*-state.json")
   );
 
-  watcher.onDidChange((uri) => {
+  watcher.onDidChange((_) => {
     applyPrimaryEditorState();
   });
 
-  watcher.onDidCreate((uri) => {
+  watcher.onDidCreate((_) => {
     applyPrimaryEditorState();
   });
 

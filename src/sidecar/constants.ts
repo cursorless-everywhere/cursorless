@@ -1,6 +1,5 @@
 import * as path from "path";
 import * as os from "os";
-import * as vscode from "vscode";
 
 /**
  * The directory where we store everything for Cursorless Everywhere related things.
