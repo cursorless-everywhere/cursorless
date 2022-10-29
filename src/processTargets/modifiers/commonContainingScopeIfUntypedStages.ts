@@ -18,7 +18,7 @@ export const containingSurroundingPairIfUntypedStage = new ModifyIfUntypedStage(
       type: "containingScope",
       scopeType: { type: "surroundingPair", delimiter: "any" },
     },
-  }
+  },
 );
 
 /**

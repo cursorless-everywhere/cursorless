@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import CommandRunner from "./core/commandRunner/CommandRunner";
 import { ThatMark } from "./core/ThatMark";
+import { tokenizerConfiguration } from "./core/tokenizerConfiguration";
 import isTesting from "./testUtil/isTesting";
 import { Graph } from "./typings/Types";
 import { getCommandServerApi, getParseTreeApi } from "./util/getExtensionApi";
-import { globalStateKeys } from "./util/globalStateKeys";
 import graphFactories from "./util/graphFactories";
 import makeGraph, { FactoryMap } from "./util/makeGraph";
 import {
@@ -35,7 +35,7 @@ export async function activate(context: vscode.ExtensionContext) {
       useSidecar: () => useSidecar,
       sidecarPrefix: () => sidecarPrefix(),
     } as FactoryMap<Graph>,
-    ["ide"]
+    ["ide"],
   );
   graph.debug.init();
   graph.snippets.init();
@@ -45,16 +45,16 @@ export async function activate(context: vscode.ExtensionContext) {
   graph.cheatsheet.init();
   graph.statusBarItem.init();
 
-  // Mark these keys for synchronization
-  graph.extensionContext.globalState.setKeysForSync([
-    globalStateKeys.hideInferenceWarning,
-  ]);
-
   const thatMark = new ThatMark();
   const sourceMark = new ThatMark();
 
   // TODO: Do this using the graph once we migrate its dependencies onto the graph
   new CommandRunner(graph, thatMark, sourceMark);
+
+  // TODO: Remove this once tokenizer has access to graph
+  if (isTesting()) {
+    tokenizerConfiguration.mockWordSeparators();
+  }
 
   if (graph.useSidecar) {
     sidecarSetup(graph);

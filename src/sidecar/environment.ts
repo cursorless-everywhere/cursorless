@@ -12,7 +12,7 @@ import { Graph } from "../typings/Types";
  * Returns whether we should run as the Cursorless everywhere sidecar.
  */
 export function shouldBeSidecar(
-  extensionContext: vscode.ExtensionContext
+  extensionContext: vscode.ExtensionContext,
 ): boolean {
   // NOTE(pcohen): sidecar mode can be enabled with three ways:
   // (1) the `CURSORLESS_SIDECAR` environment variable is enabled
@@ -41,7 +41,7 @@ export function sidecarSetup(graph: Graph) {
     }
   } catch (e) {
     vscode.window.showErrorMessage(
-      `Error creating ${CURSORLESS_ROOT_DIRECTORY} (nonfatal): ${e}`
+      `Error creating ${CURSORLESS_ROOT_DIRECTORY} (nonfatal): ${e}`,
     );
   }
 
@@ -51,7 +51,7 @@ export function sidecarSetup(graph: Graph) {
   vscode.window.showInformationMessage(
     `Cursorless has successfully started in sidecar mode!${
       graph.sidecarPrefix ? ` (prefix: ${graph.sidecarPrefix})` : ""
-    }`
+    }`,
   );
 }
 

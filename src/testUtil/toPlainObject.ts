@@ -76,7 +76,7 @@ export function rangeToPlainObject(range: Range): RangePlainObject {
  */
 export function rangeToPlainObjectWithOffsets(
   range: Range,
-  editor: TextEditor
+  editor: TextEditor,
 ): RangePlainObjectWithOffsets {
   return {
     start: positionToPlainObject(range.start),
@@ -87,7 +87,7 @@ export function rangeToPlainObjectWithOffsets(
 }
 
 export function selectionToPlainObject(
-  selection: Selection
+  selection: Selection,
 ): SelectionPlainObject {
   return {
     anchor: positionToPlainObject(selection.anchor),
@@ -127,7 +127,7 @@ export function marksToPlainObject(marks: {
   const serializedMarks: SerializedMarks = {};
   Object.entries(marks).forEach(
     ([key, value]: [string, Token]) =>
-      (serializedMarks[key] = rangeToPlainObject(value.range))
+      (serializedMarks[key] = rangeToPlainObject(value.range)),
   );
   return serializedMarks;
 }

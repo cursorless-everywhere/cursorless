@@ -21,7 +21,7 @@ import * as path from "path";
 export async function applyPrimaryEditorState() {
   if (!readFlagFile(FEATURE_FLAG_ENABLED, true)) {
     console.log(
-      `applyPrimaryEditorState: ${FEATURE_FLAG_ENABLED} set to false; not synchronizing`
+      `applyPrimaryEditorState: ${FEATURE_FLAG_ENABLED} set to false; not synchronizing`,
     );
     return;
   }
@@ -30,8 +30,8 @@ export async function applyPrimaryEditorState() {
   const state = JSON.parse(
     fs.readFileSync(
       path.join(CURSORLESS_ROOT_DIRECTORY, "editor-state.json"),
-      "utf8"
-    )
+      "utf8",
+    ),
   );
   const activeEditorState = state["activeEditor"];
 
@@ -84,9 +84,9 @@ export async function applyPrimaryEditorState() {
             selection.anchor.line,
             selection.anchor.column,
             selection.active.line,
-            selection.active.column
+            selection.active.column,
           );
-        }
+        },
       );
     } else {
       // TODO(rntz): migrate to |activeEditorState["selections"]|
@@ -96,8 +96,8 @@ export async function applyPrimaryEditorState() {
             cursor.line,
             cursor.column,
             cursor.line,
-            cursor.column
-          )
+            cursor.column,
+          ),
       );
     }
   }
@@ -157,7 +157,7 @@ export function vsCodeState(includeEditorContents: boolean = false) {
 export function registerFileWatchers() {
   const watcher = vscode.workspace.createFileSystemWatcher(
     // NOTE(pcohen): we only want to watch editor-state.json but for some reason the watcher doesn't take a exact path
-    new vscode.RelativePattern(CURSORLESS_ROOT_DIRECTORY, "*-state.json")
+    new vscode.RelativePattern(CURSORLESS_ROOT_DIRECTORY, "*-state.json"),
   );
 
   watcher.onDidChange((_) => {

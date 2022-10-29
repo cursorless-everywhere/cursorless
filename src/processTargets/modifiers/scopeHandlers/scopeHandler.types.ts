@@ -1,19 +1,15 @@
-import type { Position, Range, TextEditor } from "vscode";
+import type { Position, TextEditor } from "vscode";
 import type {
   Direction,
   ScopeType,
 } from "../../../typings/targetDescriptor.types";
-import type { TargetScope, IterationScope } from "./scope.types";
+import type { TargetScope } from "./scope.types";
 
 /**
  * Represents a scope type.  The functions in this interface allow us to find
- * specific instances of the given scope type in a document.  For example, there
- * is a function to find the scopes touching a given position
- * ({@link getScopesTouchingPosition}), a function to find every instance of
- * the scope overlapping a range ({@link getScopesOverlappingRange}), etc.
- * These functions are used by the various modifier stages to implement
- * modifiers that involve the given scope type, such as containing, every,
- * next, etc.
+ * specific instances of the given scope type in a document. These functions are
+ * used by the various modifier stages to implement modifiers that involve the
+ * given scope type, such as containing, every, next, etc.
  *
  * Note that some scope types are hierarchical, ie one scope of the given type
  * can contain another scope of the same type.  For example, a function can
@@ -21,11 +17,10 @@ import type { TargetScope, IterationScope } from "./scope.types";
  * are also hierarchical, as they can be nested.  Many scope types are not
  * hierarchical, though, eg line, token, word, etc.
  *
- * In the case of a hierarchical scope type, these functions should never
- * return two scopes that contain one another.  Ie if we return a surrounding
- * pair, we shouldn't also return any surrounding pairs contained within, or
- * if we return a function, we shouldn't also return a function nested within
- * that function.
+ * Note also that scope's domains are never allowed to partially overlap.
+ * Scopes can be directly adjacent to one another, or have one or more
+ * characters between them, or, for hierarchical scopes, one scope can
+ * completely contain another scope.
  *
  * Note that there are helpers that can sometimes be used to avoid implementing
  * a scope handler from scratch, eg {@link NestedScopeHandler}.
@@ -37,134 +32,74 @@ export interface ScopeHandler {
   readonly scopeType: ScopeType;
 
   /**
-   * The scope type of the iteration scope of this scope type, or `undefined` if
-   * there is no scope type corresponding to the iteration scope.  Note that
-   * even when this property is `undefined`, all scope types should have an
-   * iteration scope; it just may not correspond to one of our first-class scope
-   * types.
-   *
-   * FIXME: Revisit this; maybe we should always find a way to make the
-   * iteration scope a scope type.
+   * The scope type of the default iteration scope of this scope type.  This
+   * scope type will be used when the input target has no explicit range (ie
+   * {@link Target.hasExplicitRange} is `false`).
    */
-  readonly iterationScopeType: ScopeType | undefined;
+  readonly iterationScopeType: ScopeType;
 
   /**
-   * Return all scope(s) touching the given position. A scope is considered to
-   * touch a position if its domain contains the position or is directly
-   * adjacent to the position. In other words, return all scopes for which the
-   * following is true:
-   *
-   * ```typescript
-   * scope.domain.start <= position && scope.domain.end >= position
-   * ```
-   *
-   * If the position is directly adjacent to two scopes, return both. If no
-   * scope touches the given position, return an empty list.
-   *
-   * Note that if this scope type is hierarchical, return only minimal scopes if
-   * {@link ancestorIndex} is omitted or is 0.  Ie if scope A and scope B both
-   * touch {@link position}, and scope A contains scope B, return scope B but
-   * not scope A.
-   *
-   * If {@link ancestorIndex} is supplied and is greater than 0, throw a
-   * {@link NotHierarchicalScopeError} if the scope type is not hierarchical.
-   *
-   * If the scope type is hierarchical, then if {@link ancestorIndex} is 1,
-   * return all scopes touching {@link position} that have a child that is a
-   * minimal scope touching {@link position} (ie they have a child that has an
-   * {@link ancestorIndex} of 1 with respect to {@link position}).  If
-   * {@link ancestorIndex} is 2, return all scopes touching {@link position}
-   * that have a child with {@link ancestorIndex} of 1 with respect to
-   * {@link position}, etc.
-   *
-   * The {@link ancestorIndex} parameter is primarily to be used by `"grand"`
-   * scopes (#124).
-   *
-   * @param editor The editor containing {@link position}
-   * @param position The position from which to expand
-   * @param ancestorIndex If supplied, skip this many ancestors up the
-   * hierarchy.
-   */
-  getScopesTouchingPosition(
-    editor: TextEditor,
-    position: Position,
-    ancestorIndex?: number
-  ): TargetScope[];
-
-  /**
-   * Return a list of all scopes that overlap with {@link range}.  A scope is
-   * considered to overlap with a range if its domain has a non-empty
-   * intersection with the range. In other words, return all scopes for which
-   * the following is true:
-   *
-   * ```typescript
-   * const intersection = scope.domain.intersection(range);
-   * return intersection != null && !intersection.isEmpty;
-   * ```
-   *
-   * @param editor The editor containing {@link range}
-   * @param range The range with which to find overlapping scopes
-   */
-  getScopesOverlappingRange(editor: TextEditor, range: Range): TargetScope[];
-
-  /**
-   * Returns all iteration scopes touching {@link position}.  For example, if
-   * scope type is `namedFunction`, and {@link position} is inside a class, the
-   * iteration scope would contain a list of functions in the class.  An
-   * iteration scope is considered to touch a position if its domain contains
-   * the position or is directly adjacent to the position. In other words,
-   * return all iteration scopes for which the following is true:
-   *
-   * ```typescript
-   * iterationScope.domain.start <= position && iterationScope.domain.end >= position
-   * ```
-   *
-   * If the position is directly adjacent to two iteration scopes, return both.
-   * If no iteration scope touches the given position, return an empty list.
-   *
-   * Note that if the iteration scope type is hierarchical, return only minimal
-   * iteration scopes, ie if iteration scope A and iteration scope B both touch
-   * {@link position}, and iteration scope A contains iteration scope B, return
-   * iteration scope B but not iteration scope A.
-   *
-   * FIXME: We may want to remove this function and just call
-   * `iterationScope.getScopesTouchingPosition`, then run
-   * `getScopesOverlappingRange` on that range.
-   *
-   * @param editor The editor containing {@link position}
-   * @param position The position from which to expand
-   */
-  getIterationScopesTouchingPosition(
-    editor: TextEditor,
-    position: Position
-  ): IterationScope[];
-
-  /**
-   * Returns a scope before or after {@link position}, depending on
-   * {@link direction}.  If {@link direction} is `"forward"` and {@link offset}
-   * is 1, return the leftmost scope whose {@link Scope.domain.start} is equal
-   * or after {@link position}.  If {@link direction} is `"forward"` and
-   * {@link offset} is 2, return the leftmost scope whose
-   * {@link Scope.domain.start} is equal or after the {@link Scope.domain.end}
-   * of the scope at `offset` 1.  Etc.
-   *
-   * If {@link direction} is `"backward"` and {@link offset} is 1, return the
-   * rightmost scope whose {@link Scope.domain.end} is equal or before
-   * {@link position}.  If {@link direction} is `"backward"` and {@link offset}
-   * is 2, return the rightmost scope whose {@link Scope.domain.end} is equal
-   * or before the {@link Scope.domain.start} of the scope at `offset` 1.  Etc.
-   *
-   * Note that {@link offset} will always be greater than or equal to 1.
+   * Returns an iterable of scopes meeting the requirements in
+   * {@link requirements}, yielded in a specific order.  See
+   * {@link generateScopeCandidates} and {@link compareTargetScopes} for more on
+   * the order.
    *
    * @param editor The editor containing {@link position}
    * @param position The position from which to start
-   * @param offset Which scope before / after position to return
    * @param direction The direction to go relative to {@link position}
+   * @param requirements Extra requirements of the scopes being returned
+   * @returns An iterable of scopes
    */
-  getScopeRelativeToPosition(
+  generateScopes(
     editor: TextEditor,
     position: Position,
-    offset: number,
-    direction: Direction
-  ): TargetScope;
+    direction: Direction,
+    requirements?: ScopeIteratorRequirements,
+  ): Iterable<TargetScope>;
+
+  /**
+   * This optional function can be defined to indicate a preference when the
+   * containing scope modifier is applied to an empty target that is directly in
+   * between two instances of scope.  By default we prefer the right scope, but
+   * if you define this function you can indicate another way to break these
+   * ties.
+   * @param scopeA A scope
+   * @param scopeB Another scope
+   * @returns A boolean indicating if {@link scopeA} is preferred over
+   * {@link scopeB}.  A value of `undefined` indicates no preference.
+   */
+  isPreferredOver?(
+    scopeA: TargetScope,
+    scopeB: TargetScope,
+  ): boolean | undefined;
+}
+
+export type ContainmentPolicy =
+  | "required"
+  | "disallowed"
+  | "disallowedIfStrict";
+
+export interface ScopeIteratorRequirements {
+  /**
+   * Indicates whether the scopes must / must not contain the input position.
+   * The values are as follows:
+   *
+   * - `"required"` means that the scope's {@link TargetScope.domain|domain}
+   *   must contain position.  If position is directly adjacent to the domain,
+   *   that counts as containment
+   * - `"disallowed"` means that the scope's {@link TargetScope.domain|domain}
+   *   may not contain position.  If position is directly adjacent to the
+   *   domain, that is also disallowed
+   * - `"disallowedIfStrict"` means that the scope's
+   *   {@link TargetScope.domain|domain} may not strictly contain position.  If
+   *   position is directly adjacent to the domain, that *is* allowed.
+   */
+  containment?: ContainmentPolicy;
+
+  /**
+   * Indicates that the {@link TargetScope.domain|domain} of the scopes must
+   * start strictly before this position for `"forward"`, or strictly after this
+   * position for `"backward"`.
+   */
+  distalPosition?: Position;
 }

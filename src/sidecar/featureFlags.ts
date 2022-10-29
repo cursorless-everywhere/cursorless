@@ -6,7 +6,7 @@ import * as fs from "fs";
 // when needed.
 export const FEATURE_FLAG_ENABLED = path.join(
   CURSORLESS_ROOT_DIRECTORY,
-  "sidecar-enabled"
+  "sidecar-enabled",
 );
 
 // Allowed disabling the scrolling of the sidecar. Recent versions of Cursorless Everywhere
@@ -14,7 +14,7 @@ export const FEATURE_FLAG_ENABLED = path.join(
 // but it can be enabled for ease of debugging.
 export const FEATURE_FLAG_PERFORM_SCROLLING = path.join(
   CURSORLESS_ROOT_DIRECTORY,
-  "sidecar-scrolling"
+  "sidecar-scrolling",
 );
 
 /**

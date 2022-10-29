@@ -19,7 +19,7 @@ async function handleRequest(requestObj: any) {
     const args = requestObj.commandArgs || [];
     const result = await vscode.commands.executeCommand(
       requestObj.commandId,
-      ...args
+      ...args,
     );
     return { result: result };
   }
@@ -51,13 +51,13 @@ async function handleRequest(requestObj: any) {
         try {
           if (!readFlagFile(FEATURE_FLAG_ENABLED, true)) {
             throw Error(
-              `Sidecar is disabled (${FEATURE_FLAG_ENABLED}); not running commands`
+              `Sidecar is disabled (${FEATURE_FLAG_ENABLED}); not running commands`,
             );
           }
 
           const commandResult = await vscode.commands.executeCommand(
             "cursorless.command",
-            ...cursorlessArgs
+            ...cursorlessArgs,
           );
           const newState = vsCodeState(true);
           return {
@@ -78,7 +78,7 @@ async function handleRequest(requestObj: any) {
     }
   } catch (e) {
     vscode.window.showInformationMessage(
-      `Error during evaluation of command "${requestObj.command}": ${e}`
+      `Error during evaluation of command "${requestObj.command}": ${e}`,
     );
     return { error: `exception during execution: ${e}` };
   }
@@ -88,7 +88,7 @@ export function startCommandServer() {
   try {
     const socketPath = path.join(
       CURSORLESS_ROOT_DIRECTORY,
-      `${CURSORLESS_PREFIX}vscode-socket`
+      `${CURSORLESS_PREFIX}vscode-socket`,
     );
 
     try {
@@ -97,7 +97,7 @@ export function startCommandServer() {
     } catch (e) {
       console.log("unable to delete socket file", e);
       vscode.window.showErrorMessage(
-        `Unable to delete socket file at ${socketPath}: ${e}`
+        `Unable to delete socket file at ${socketPath}: ${e}`,
       );
     }
 
@@ -120,7 +120,7 @@ export function startCommandServer() {
     });
   } catch (e) {
     vscode.window.showInformationMessage(
-      `Error setting up control socket: ${e}`
+      `Error setting up control socket: ${e}`,
     );
   }
 }
