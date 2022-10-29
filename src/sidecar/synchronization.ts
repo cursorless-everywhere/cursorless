@@ -103,54 +103,6 @@ export async function applyPrimaryEditorState() {
   }
 }
 
-// ================================================================================
-// Serializing VSCode's state
-// ================================================================================
-
-export function vsCodeState(includeEditorContents: boolean = false) {
-  const editor = vscode.window.activeTextEditor;
-
-  const result = {
-    path: editor?.document.uri.path,
-    contentsPath: null as string | null,
-    cursors: editor?.selections.map((s) => {
-      return {
-        anchor: {
-          line: s.anchor.line,
-          character: s.anchor.character,
-        },
-        active: {
-          line: s.active.line,
-          character: s.active.character,
-        },
-        // NOTE(pcohen): these are included just for ease of implementation;
-        // obviously the receiving end could which of the anchor/active is the start/end
-        start: {
-          line: s.start.line,
-          character: s.start.character,
-        },
-        end: {
-          line: s.end.line,
-          character: s.end.character,
-        },
-      };
-    }),
-  };
-
-  if (includeEditorContents) {
-    // For simplicity will just write to the active path + ".out",
-    // assuming the active path is a temporary file.
-    const contentsPath = `${result.path}.out`;
-    const contents = editor?.document.getText();
-    if (contents) {
-      fs.writeFileSync(contentsPath, contents);
-      result["contentsPath"] = contentsPath;
-    }
-  }
-
-  return result;
-}
-
 /**
  * Registers file watchers so that when the exterior editor changes it state, we update VS Code.
  */

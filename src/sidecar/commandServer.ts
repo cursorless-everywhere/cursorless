@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
 
-import { applyPrimaryEditorState, vsCodeState } from "./synchronization";
+import { applyPrimaryEditorState } from "./synchronization";
 import { FEATURE_FLAG_ENABLED, readFlagFile } from "./featureFlags";
 import * as net from "net";
 import * as fs from "fs";
 import { CURSORLESS_PREFIX, CURSORLESS_ROOT_DIRECTORY } from "./constants";
 import * as path from "path";
+import { vsCodeState } from "./serialization";
 
 /**
  * Handles a request from the control socket in returns the response.
