@@ -4,9 +4,9 @@ import { applyPrimaryEditorState } from "./synchronization";
 import { FEATURE_FLAG_ENABLED, readFlagFile } from "./featureFlags";
 import * as net from "net";
 import * as fs from "fs";
-import { CURSORLESS_PREFIX, CURSORLESS_ROOT_DIRECTORY } from "./constants";
 import * as path from "path";
 import { vsCodeState } from "./serialization";
+import { Graph } from "../typings/Types";
 
 /**
  * Handles a request from the control socket in returns the response.
@@ -85,16 +85,15 @@ async function handleRequest(requestObj: any) {
   }
 }
 
-export function startCommandServer() {
+export function startCommandServer(graph: Graph) {
   try {
-    const socketPath = path.join(
-      CURSORLESS_ROOT_DIRECTORY,
-      `${CURSORLESS_PREFIX}vscode-socket`,
-    );
+    const socketPath = path.join(graph.sidecarDirectory, `vscode-socket`);
 
     try {
       // make sure the file is deleted first.
-      fs.unlinkSync(socketPath);
+      if (fs.existsSync(socketPath)) {
+        fs.unlinkSync(socketPath);
+      }
     } catch (e) {
       console.log("unable to delete socket file", e);
       vscode.window.showErrorMessage(

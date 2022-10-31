@@ -9,9 +9,14 @@ import graphFactories from "./util/graphFactories";
 import makeGraph, { FactoryMap } from "./util/makeGraph";
 import {
   shouldBeSidecar,
+  sidecarDirectory,
   sidecarPrefix,
   sidecarSetup,
+  sidecarTeardown,
 } from "./sidecar/environment";
+
+// NOTE(pcohen): just for teardown
+let _graph: Graph;
 
 /**
  * Extension entrypoint called by VSCode on Cursorless startup.
@@ -24,7 +29,9 @@ import {
 export async function activate(context: vscode.ExtensionContext) {
   const { getNodeAtLocation } = await getParseTreeApi();
   const commandServerApi = await getCommandServerApi();
+
   const useSidecar = shouldBeSidecar(context);
+  const prefix: string = useSidecar ? sidecarPrefix(context) : "";
 
   const graph = makeGraph(
     {
@@ -33,10 +40,19 @@ export async function activate(context: vscode.ExtensionContext) {
       commandServerApi: () => commandServerApi,
       getNodeAtLocation: () => getNodeAtLocation,
       useSidecar: () => useSidecar,
-      sidecarPrefix: () => sidecarPrefix(),
+      sidecarPrefix: () => prefix,
+      sidecarDirectory: () => sidecarDirectory(prefix),
     } as FactoryMap<Graph>,
     ["ide"],
   );
+
+  if (graph.useSidecar) {
+    try {
+      sidecarSetup(graph);
+    } catch (e) {
+      vscode.window.showErrorMessage(`${e}`);
+    }
+  }
   graph.debug.init();
   graph.snippets.init();
   await graph.decorations.init();
@@ -56,9 +72,7 @@ export async function activate(context: vscode.ExtensionContext) {
     tokenizerConfiguration.mockWordSeparators();
   }
 
-  if (graph.useSidecar) {
-    sidecarSetup(graph);
-  }
+  _graph = graph;
 
   return {
     thatMark,
@@ -72,5 +86,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-  // do nothing
+  console.log("Cursorless deactivating...");
+
+  try {
+    sidecarTeardown(_graph);
+  } catch (e) {
+    console.log(`Error tearing down sidecar: ${e}`);
+  }
+
+  console.log("Cursorless deactivated!!");
 }

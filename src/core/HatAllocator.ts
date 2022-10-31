@@ -92,8 +92,7 @@ export class HatAllocator {
         activeMap,
         this.graph.decorations,
         this.graph.tokenGraphemeSplitter,
-        // TODO(pcohen): move into `ide` abstraction
-        this.graph.useSidecar,
+        this.graph,
       );
     } else {
       vscode.window.visibleTextEditors.forEach(this.clearEditorDecorations);

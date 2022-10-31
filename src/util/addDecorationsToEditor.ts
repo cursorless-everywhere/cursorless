@@ -7,16 +7,13 @@ import { IndividualHatMap } from "../core/IndividualHatMap";
 import { rangeToPlainObjectWithOffsets } from "../testUtil/toPlainObject";
 import { TokenGraphemeSplitter } from "../core/TokenGraphemeSplitter";
 import { getMatcher } from "../core/tokenizer";
-import { Token } from "../typings/Types";
+import { Graph, Token } from "../typings/Types";
 import { getDisplayLineMap } from "./getDisplayLineMap";
 import { getTokenComparator } from "./getTokenComparator";
 import { getTokensInRange } from "./getTokensInRange";
 import * as fs from "fs";
 import * as path from "path";
 import { CURSORLESS_ROOT_DIRECTORY } from "../sidecar/constants";
-
-// TODO(pcohen): move to reading the graph
-const CURSORLESS_PREFIX = process.env.CURSORLESS_PREFIX || "";
 
 /**
  * Returns the visible ranges from the actual editor for Cursorless Everywhere
@@ -70,7 +67,7 @@ export function addDecorationsToEditors(
   hatTokenMap: IndividualHatMap,
   decorations: Decorations,
   tokenGraphemeSplitter: TokenGraphemeSplitter,
-  useSideCar: boolean,
+  graph: Graph,
 ) {
   hatTokenMap.clear();
 
@@ -90,7 +87,7 @@ export function addDecorationsToEditors(
   const tokens = concat(
     [],
     ...editors.map((editor) => {
-      const visibleRanges = useSideCar
+      const visibleRanges = graph.useSidecar
         ? realVisibleRanges(editor.document?.fileName)
         : editor.visibleRanges;
       const displayLineMap = getDisplayLineMap(editor, visibleRanges);
@@ -239,12 +236,10 @@ export function addDecorationsToEditors(
     serialized[editor.document.uri.path] = result;
   });
 
-  const hatsFileName = `${CURSORLESS_PREFIX}vscode-hats.json`;
-  const hatsFilePath = path.join(CURSORLESS_ROOT_DIRECTORY, hatsFileName);
-  const tempHatsFilePath = path.join(
-    CURSORLESS_ROOT_DIRECTORY,
-    `.${hatsFileName}`,
-  );
+  const hatsFileName = `vscode-hats.json`;
+  const directory = graph.sidecarDirectory;
+  const hatsFilePath = path.join(directory, hatsFileName);
+  const tempHatsFilePath = path.join(directory, `.${hatsFileName}`);
 
   try {
     // write to a hidden file first so eager file watchers don't get partial files.

@@ -186,6 +186,12 @@ export interface Graph {
    * to allow for running multiple instances.
    */
   readonly sidecarPrefix: string;
+
+  /**
+   * The prefixed directory where state files are stored (excluding the exterior editor state
+   * which is always in CURSORLESS_ROOT_DIRECTORY).
+   */
+  readonly sidecarDirectory: string;
 }
 
 export type NodeMatcherValue = {
