@@ -36,7 +36,7 @@ export function shouldBeSidecar(
 }
 
 export function sidecarSetup(graph: Graph) {
-  if (!graph.sidecarPrefix.match(/^[\w-]+$/)) {
+  if (graph.sidecarPrefix && !graph.sidecarPrefix.match(/^[\w-]+$/)) {
     throw new Error(
       `Sidecar prefix cannot contain special characters: (${graph.sidecarPrefix})`,
     );
