@@ -7,6 +7,35 @@ import * as fs from "fs";
 import * as path from "path";
 import { vsCodeState } from "./serialization";
 import { Graph } from "../typings/Types";
+import { workspace } from "vscode";
+
+function evalRequest(requestObj: any) {
+  // NOTE(pcohen): disable eval by default for security
+  const evalEnabled = workspace
+    .getConfiguration("cursorless")
+    .get<boolean>("sidecarEval")!;
+  if (!evalEnabled) {
+    return {
+      error: "eval is disabled",
+      help: "set cursorless.sidecarEval to true in your Visual Studio Code settings to use it",
+    };
+  }
+  let result;
+  try {
+    result = eval(requestObj.code);
+  } catch (e) {
+    return { error: String(e), _note: "error during execution" };
+  }
+  try {
+    const _un = JSON.stringify(result);
+    return { result: result };
+  } catch (e) {
+    return {
+      result: `${result}`,
+      _note: "Result was not JSON-serializable, so we converted to string",
+    };
+  }
+}
 
 /**
  * Handles a request from the control socket in returns the response.
@@ -31,6 +60,8 @@ async function handleRequest(requestObj: any) {
         return { response: "pong" };
       case "state":
         return vsCodeState();
+      case "eval":
+        return evalRequest(requestObj);
       case "stateWithContents":
         return vsCodeState(true);
       case "applyPrimaryEditorState":
