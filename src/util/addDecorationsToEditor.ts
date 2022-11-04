@@ -14,6 +14,7 @@ import { getTokensInRange } from "./getTokensInRange";
 import * as fs from "fs";
 import * as path from "path";
 import { CURSORLESS_ROOT_DIRECTORY } from "../sidecar/constants";
+import { getActiveTextEditor } from "../ide/activeTextEditor";
 
 /**
  * Returns the visible ranges from the actual editor for Cursorless Everywhere
@@ -73,13 +74,13 @@ export function addDecorationsToEditors(
 
   let editors: readonly vscode.TextEditor[];
 
-  if (vscode.window.activeTextEditor == null) {
+  if (getActiveTextEditor() == null) {
     editors = vscode.window.visibleTextEditors;
   } else {
     editors = [
-      vscode.window.activeTextEditor,
+      getActiveTextEditor()!,
       ...vscode.window.visibleTextEditors.filter(
-        (editor) => editor !== vscode.window.activeTextEditor,
+        (editor) => editor !== getActiveTextEditor(),
       ),
     ];
   }

@@ -35,6 +35,7 @@ export async function applyPrimaryEditorState() {
   );
   const activeEditorState = state["activeEditor"];
 
+  // eslint-disable-next-line no-restricted-properties
   const editor = vscode.window.activeTextEditor;
 
   // If we got into a state where the editor has local changes, always revert them. Otherwise all subsequent

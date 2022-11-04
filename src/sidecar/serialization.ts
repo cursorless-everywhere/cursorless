@@ -8,6 +8,7 @@ import * as fs from "fs";
  * and the path included in the result
  */
 export function vsCodeState(includeEditorContents: boolean = false) {
+  // eslint-disable-next-line no-restricted-properties
   const editor = vscode.window.activeTextEditor;
 
   const result = {
