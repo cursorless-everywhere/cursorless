@@ -43,9 +43,6 @@ export function sidecarSetup(graph: Graph) {
   }
 
   const rootDirectory = graph.sidecarDirectory;
-  vscode.window.showInformationMessage(
-    `Cursorless sidecar started (v10)! ${rootDirectory}`,
-  );
   try {
     if (!fs.existsSync(rootDirectory)) {
       fs.mkdirSync(rootDirectory, { recursive: true });
