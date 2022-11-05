@@ -67,7 +67,7 @@ async function handleRequest(requestObj: any) {
       case "applyPrimaryEditorState":
         // TODO(pcohen): this may change the editor state,
         // but it doesn't actually block on Cursorless applying those changes
-        applyPrimaryEditorState();
+        await applyPrimaryEditorState();
         return { response: "OK" };
       case "command":
         return { result: await runVSCodeCommand(requestObj) };
