@@ -4,9 +4,8 @@ import { Range } from "vscode";
 import Decorations from "../core/Decorations";
 import { HatStyleName } from "../core/hatStyles";
 import { IndividualHatMap } from "../core/IndividualHatMap";
-import { rangeToPlainObjectWithOffsets } from "../testUtil/toPlainObject";
-import { TokenGraphemeSplitter } from "../core/TokenGraphemeSplitter";
-import { getMatcher } from "../core/tokenizer";
+import { TokenGraphemeSplitter } from "../libs/cursorless-engine/tokenGraphemeSplitter";
+import { getMatcher } from "../libs/cursorless-engine/tokenizer";
 import { Graph, Token } from "../typings/Types";
 import { getDisplayLineMap } from "./getDisplayLineMap";
 import { getTokenComparator } from "./getTokenComparator";
@@ -14,7 +13,8 @@ import { getTokensInRange } from "./getTokensInRange";
 import * as fs from "fs";
 import * as path from "path";
 import { CURSORLESS_ROOT_DIRECTORY } from "../sidecar/constants";
-import { getActiveTextEditor } from "../ide/activeTextEditor";
+import { getActiveTextEditor } from "../ide/vscode/activeTextEditor";
+import { rangeToPlainObjectWithOffsets } from "@cursorless/vscode-common";
 
 /**
  * Returns the visible ranges from the actual editor for Cursorless Everywhere
