@@ -7,7 +7,6 @@ import {
   readFlagFile,
 } from "./featureFlags";
 import * as fs from "fs";
-import { CURSORLESS_ROOT_DIRECTORY } from "./constants";
 import * as path from "path";
 
 // ================================================================================
@@ -18,7 +17,7 @@ import * as path from "path";
  * Reads the state of the primary ("superior") editor and makes VS Code mimic it
  * (current file, selections, scroll area, etc.)
  */
-export async function applyPrimaryEditorState() {
+export async function applyPrimaryEditorState(rootDirectory: string) {
   if (!readFlagFile(FEATURE_FLAG_ENABLED, true)) {
     console.log(
       `applyPrimaryEditorState: ${FEATURE_FLAG_ENABLED} set to false; not synchronizing`,
@@ -29,7 +28,7 @@ export async function applyPrimaryEditorState() {
   // TODO(pcohen): diff the state against the previous state
   const state = JSON.parse(
     fs.readFileSync(
-      path.join(CURSORLESS_ROOT_DIRECTORY, "editor-state.json"),
+      path.join(rootDirectory, "editor-state.json"),
       "utf8",
     ),
   );
@@ -107,14 +106,14 @@ export async function applyPrimaryEditorState() {
 /**
  * Registers file watchers so that when the exterior editor changes it state, we update VS Code.
  */
-export function registerFileWatchers() {
+export function registerFileWatchers(rootDirectory: string) {
   const watcher = vscode.workspace.createFileSystemWatcher(
     // NOTE(pcohen): we only want to watch editor-state.json but for some reason the watcher doesn't take a exact path
-    new vscode.RelativePattern(CURSORLESS_ROOT_DIRECTORY, "*-state.json"),
+    new vscode.RelativePattern(rootDirectory, "*-state.json"),
   );
 
-  watcher.onDidChange((_) => applyPrimaryEditorState());
-  watcher.onDidCreate((_) => applyPrimaryEditorState());
+  watcher.onDidChange((_) => applyPrimaryEditorState(rootDirectory));
+  watcher.onDidCreate((_) => applyPrimaryEditorState(rootDirectory));
 
-  applyPrimaryEditorState();
+  applyPrimaryEditorState(rootDirectory);
 }

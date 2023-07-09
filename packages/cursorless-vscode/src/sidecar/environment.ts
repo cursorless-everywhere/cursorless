@@ -50,7 +50,7 @@ export function sidecarSetup(rootDirectory: string, sidecarPrefix: string) {
     );
   }
 
-  registerFileWatchers();
+  registerFileWatchers(rootDirectory);
   startCommandServer(rootDirectory);
 
   vscode.window.showInformationMessage(
