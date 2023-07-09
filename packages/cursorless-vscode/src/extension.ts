@@ -26,6 +26,11 @@ import { VscodeIDE } from "./ide/vscode/VscodeIDE";
 import { KeyboardCommands } from "./keyboard/KeyboardCommands";
 import { registerCommands } from "./registerCommands";
 import { StatusBarItem } from "./StatusBarItem";
+import {
+  shouldBeSidecar, sidecarDirectory,
+  sidecarPrefix,
+  sidecarSetup
+} from "./sidecar/environment";
 
 /**
  * Extension entrypoint called by VSCode on Cursorless startup.
@@ -39,6 +44,10 @@ export async function activate(
   context: vscode.ExtensionContext,
 ): Promise<CursorlessApi> {
   const parseTreeApi = await getParseTreeApi();
+
+  const scEnabled = shouldBeSidecar(context);
+  const scPrefix: string = scEnabled ? sidecarPrefix(context) : "";
+  const scRoot = sidecarDirectory(scPrefix);
 
   const { vscodeIDE, hats } = await createVscodeIde(context);
 
@@ -72,6 +81,14 @@ export async function activate(
     hats,
     commandServerApi,
   );
+
+  if (scEnabled) {
+    try {
+      sidecarSetup(scRoot, scPrefix);
+    } catch (e) {
+      vscode.window.showErrorMessage(`${e}`);
+    }
+  }
 
   const statusBarItem = StatusBarItem.create("cursorless.showQuickPick");
   const keyboardCommands = KeyboardCommands.create(context, statusBarItem);
