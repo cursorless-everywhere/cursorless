@@ -18,7 +18,7 @@ async function main() {
     ];
 
     // Install extension dependencies
-    const process = cp.spawn("code", args, { stdio: "inherit", shell: true });
+    const process = cp.spawn("code-insiders", args, { stdio: "inherit", shell: true });
 
     await new Promise<void>((resolve, reject) => {
       process.on("error", reject);
