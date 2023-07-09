@@ -4,6 +4,7 @@ import {
   isTesting,
   NormalizedIDE,
   Range,
+  Sidecar,
   TextDocument,
 } from "@cursorless/common";
 import {
@@ -49,6 +50,8 @@ export async function activate(
   const scPrefix: string = scEnabled ? sidecarPrefix(context) : "";
   const scRoot = sidecarDirectory(scPrefix);
 
+  const sc = new Sidecar();
+
   const { vscodeIDE, hats } = await createVscodeIde(context);
 
   const normalizedIde =
@@ -78,6 +81,7 @@ export async function activate(
   } = createCursorlessEngine(
     treeSitter,
     normalizedIde ?? vscodeIDE,
+    sc,
     hats,
     commandServerApi,
   );

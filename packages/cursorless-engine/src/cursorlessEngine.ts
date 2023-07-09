@@ -1,4 +1,10 @@
-import { Command, CommandServerApi, Hats, IDE } from "@cursorless/common";
+import {
+  Command,
+  CommandServerApi,
+  Hats,
+  IDE,
+  Sidecar
+} from "@cursorless/common";
 import { StoredTargetMap, TestCaseRecorder, TreeSitter } from ".";
 import { Debug } from "./core/Debug";
 import { HatTokenMapImpl } from "./core/HatTokenMapImpl";
@@ -7,16 +13,20 @@ import { RangeUpdater } from "./core/updateSelections/RangeUpdater";
 import { LanguageDefinitions } from "./languages/LanguageDefinitions";
 import { runIntegrationTests } from "./runIntegrationTests";
 import { injectIde } from "./singletons/ide.singleton";
+import { injectSidecar } from "./singletons/sidecar.singleton";
+
 import { ensureCommandShape } from "./core/commandVersionUpgrades/ensureCommandShape";
 import { runCommand } from "./runCommand";
 
 export function createCursorlessEngine(
   treeSitter: TreeSitter,
   ide: IDE,
+  sidecar: Sidecar,
   hats: Hats,
   commandServerApi: CommandServerApi | null,
 ): CursorlessEngine {
   injectIde(ide);
+  injectSidecar(sidecar);
 
   const debug = new Debug(treeSitter);
 

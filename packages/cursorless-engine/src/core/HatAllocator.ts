@@ -7,6 +7,7 @@ import {rangeToPlainObject} from "@cursorless/common";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import {sidecar} from "../singletons/sidecar.singleton";
 
 
 interface Context {
