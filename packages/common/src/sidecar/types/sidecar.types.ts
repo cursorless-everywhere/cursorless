@@ -5,6 +5,7 @@ import path from "path";
 import os from "os";
 import fs from "fs";
 import {IDE} from "../../ide/types/ide.types";
+import {Range} from "../../types/Range";
 
 export class Sidecar {
   readonly enabled: boolean;
@@ -17,8 +18,52 @@ export class Sidecar {
     this.rootDirectory = rootDirectory;
   }
 
-  visibleRanges() {
-    console.log("hello world");
+  editorState() {
+    // TODO(pcohen): type definition
+    return JSON.parse(
+      fs.readFileSync(
+        path.join(this.rootDirectory, `editor-state.json`),
+        "utf-8",
+      ),
+    );
+  }
+
+  stateForEditor(fileName: string) {
+    const state = this.editorState();
+
+    let activeEditorState;
+
+    if (state.editors) {
+      activeEditorState = state.editors.find(
+        (e: any) => e && e["temporaryFilePath"] === fileName,
+      );
+    } else if (state["activeEditor"]) {
+      // fallback to the old object definition of activeEditor
+      activeEditorState = state["activeEditor"];
+    }
+
+    if (!activeEditorState) {
+      throw Error(
+        `Unable to find an editor state for ${path.basename(fileName)}!`,
+      );
+    }
+
+    return activeEditorState;
+  }
+
+  visibleRanges(fileName: string): Range[] {
+    const activeEditorState = this.stateForEditor(fileName);
+
+
+    // TODO(pcohen): add visibleRanges to the schema explicitly
+    return [
+      new Range(
+        activeEditorState["firstVisibleLine"],
+        0,
+        activeEditorState["lastVisibleLine"],
+        0,
+      ),
+    ];
   }
 
   serializeHats(ide: IDE, tokenHats: TokenHat[]) {

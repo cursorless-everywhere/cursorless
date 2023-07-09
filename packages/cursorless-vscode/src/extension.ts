@@ -33,7 +33,7 @@ import {
   sidecarSetup
 } from "./sidecar/environment";
 
-let _sc: Sidecar = null;
+let _sc: Sidecar;
 
 /**
  * Extension entrypoint called by VSCode on Cursorless startup.

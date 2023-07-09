@@ -3,10 +3,6 @@ import { ide } from "../singletons/ide.singleton";
 import tokenGraphemeSplitter from "../singletons/tokenGraphemeSplitter.singleton";
 import { allocateHats } from "../util/allocateHats";
 import { IndividualHatMap } from "./IndividualHatMap";
-import {rangeToPlainObject} from "@cursorless/common";
-import fs from "fs";
-import path from "path";
-import os from "os";
 import {sidecar} from "../singletons/sidecar.singleton";
 
 
