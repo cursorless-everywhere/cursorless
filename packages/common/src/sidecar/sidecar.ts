@@ -1,10 +1,11 @@
 import * as console from "console";
-import {TokenHat} from "../../types/HatTokenMap";
-import {rangeToPlainObject} from "../../testUtil/toPlainObject";
+import {TokenHat} from "../types/HatTokenMap";
+import {rangeToPlainObject} from "../testUtil/toPlainObject";
 import path from "path";
+import os from "os";
 import fs from "fs";
-import {IDE} from "../../ide/types/ide.types";
-import {Range} from "../../types/Range";
+import {IDE} from "../ide/types/ide.types";
+import {Range} from "../types/Range";
 
 export class Sidecar {
   readonly enabled: boolean;

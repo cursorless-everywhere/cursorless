@@ -18,7 +18,7 @@ export * from "./util/walkAsync";
 export { Listener, Notifier } from "./util/Notifier";
 export { TokenHatSplittingMode } from "./ide/types/Configuration";
 export * from "./ide/types/ide.types";
-export * from "./sidecar/types/sidecar.types";
+export * from "./sidecar/sidecar";
 export * from "./ide/types/Capabilities";
 export * from "./ide/types/CommandId";
 export * from "./ide/types/FlashDescriptor";
