@@ -11,6 +11,12 @@ import {
   TextEditorEdit,
   TextEditorOptions,
 } from "@cursorless/common";
+
+import {
+  sidecar,
+} from "@cursorless/cursorless-engine";
+
+// import {sidecar} from "@cursorless/cursorless-engine";
 import {
   fromVscodeRange,
   fromVscodeSelection,
@@ -57,6 +63,16 @@ export class VscodeTextEditorImpl implements EditableTextEditor {
   }
 
   get visibleRanges(): Range[] {
+
+    // -- Sidecar fork start --
+    // TODO(pcohen): properly override this class rather than adding
+    // dynamic checks
+    const sc = sidecar();
+    if (sc.enabled) {
+      return sidecar().visibleRanges(this.document.uri.path);
+    }
+    // -- Sidecar fork end --
+
     return this.editor.visibleRanges.map(fromVscodeRange);
   }
 
