@@ -6,7 +6,6 @@ import * as net from "net";
 import * as fs from "fs";
 import * as path from "path";
 import { vsCodeState } from "./serialization";
-import { Graph } from "../typings/Types";
 import { workspace } from "vscode";
 
 function evalRequest(requestObj: any) {
@@ -116,9 +115,9 @@ async function handleRequest(requestObj: any) {
   }
 }
 
-export function startCommandServer(graph: Graph) {
+export function startCommandServer(sidecarDirectory: string) {
   try {
-    const socketPath = path.join(graph.sidecarDirectory, `vscode-socket`);
+    const socketPath = path.join(sidecarDirectory, `vscode-socket`);
 
     try {
       // make sure the file is deleted first.

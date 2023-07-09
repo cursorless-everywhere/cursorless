@@ -51,7 +51,7 @@ export function sidecarSetup(rootDirectory: string, sidecarPrefix: string) {
   }
 
   registerFileWatchers();
-  // startCommandServer(graph);
+  startCommandServer(rootDirectory);
 
   vscode.window.showInformationMessage(
     `Cursorless has successfully started in sidecar mode!${
@@ -61,6 +61,7 @@ export function sidecarSetup(rootDirectory: string, sidecarPrefix: string) {
 }
 
 export function sidecarTeardown() {
+  // TODO(pcohen): bring this back; tear down the sidecar directory
   // if (graph.sidecarPrefix) {
   //   const directory = graph.sidecarDirectory;
   //   console.log(`Deleting sidecar directory: ${directory}`);
