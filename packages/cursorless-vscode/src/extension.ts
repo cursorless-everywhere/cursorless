@@ -33,6 +33,8 @@ import {
   sidecarSetup
 } from "./sidecar/environment";
 
+let _sc: Sidecar = null;
+
 /**
  * Extension entrypoint called by VSCode on Cursorless startup.
  * - Creates a dependency container {@link Graph} with the components that
@@ -50,7 +52,8 @@ export async function activate(
   const scPrefix: string = scEnabled ? sidecarPrefix(context) : "";
   const scRoot = sidecarDirectory(scPrefix);
 
-  const sc = new Sidecar();
+  const sc = new Sidecar(scEnabled, scPrefix, scRoot);
+  _sc = sc;
 
   const { vscodeIDE, hats } = await createVscodeIde(context);
 
