@@ -3,6 +3,11 @@ import { ide } from "../singletons/ide.singleton";
 import tokenGraphemeSplitter from "../singletons/tokenGraphemeSplitter.singleton";
 import { allocateHats } from "../util/allocateHats";
 import { IndividualHatMap } from "./IndividualHatMap";
+import {rangeToPlainObject} from "@cursorless/common";
+import fs from "fs";
+import path from "path";
+import os from "os";
+
 
 interface Context {
   getActiveMap(): Promise<IndividualHatMap>;
@@ -73,6 +78,57 @@ export class HatAllocator {
         styleName: hatStyle,
       })),
     );
+
+    // -- Sidecar fork start --
+
+    // NOTE(pcohen): write out the hats now that we have changed them
+    const serialized: any = {};
+
+    tokenHats.forEach((hat: TokenHat) => {
+      const result: any = {};
+
+      const filename = ide().activeTextEditor?.document.uri.path;
+
+      if (!filename) {
+        return;
+      }
+
+      if (!result[hat.hatStyle]) {
+        result[hat.hatStyle] = [];
+      }
+
+      result[hat.hatStyle].push(rangeToPlainObject(hat.hatRange));
+      serialized[filename] = result;
+    });
+    const hatsFileName = `vscode-hats.json`;
+    const directory = path.join(os.homedir(), ".cursorless-new");
+
+    const hatsFilePath = path.join(directory, hatsFileName);
+    const tempHatsFilePath = path.join(directory, `.${hatsFileName}`);
+
+    try {
+      // write to a hidden file first so eager file watchers don't get partial files.
+      // then perform a move to the proper location. this *should* be atomic?
+      // TODO: should we be deleting both of these files on cursorless startup?
+      if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory, { recursive: true });
+      }
+      fs.writeFileSync(tempHatsFilePath, JSON.stringify(serialized));
+      fs.rename(tempHatsFilePath, hatsFilePath, (err: any) => {
+        if (err) {
+          throw err;
+        }
+      });
+    } catch (e) {
+      // NOTE(pcohen): how to throw an error?
+      console.error(`Error writing ${hatsFilePath}: ${e}`);
+      throw new Error(`Error writing ${hatsFilePath}: ${e}`);
+      // vscode.window.showErrorMessage(
+      //   `Error writing ${hatsFilePath} (nonfatal): ${e}`,
+      // );
+    }
+
+    // -- Sidecar fork end --
   }
 
   allocateHatsDebounced() {
