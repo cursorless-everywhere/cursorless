@@ -54,7 +54,6 @@ export class Sidecar {
   visibleRanges(fileName: string): Range[] {
     const activeEditorState = this.stateForEditor(fileName);
 
-
     // TODO(pcohen): add visibleRanges to the schema explicitly
     return [
       new Range(
@@ -70,10 +69,11 @@ export class Sidecar {
     // NOTE(pcohen): write out the hats now that we have changed them
     const serialized: any = {};
 
-    tokenHats.forEach((hat: TokenHat) => {
-      const result: any = {};
+    const result: any = {};
+    const filename = ide.activeTextEditor?.document.uri.path;
 
-      const filename = ide.activeTextEditor?.document.uri.path;
+    tokenHats.forEach((hat: TokenHat) => {
+
 
       if (!filename) {
         return;
@@ -84,8 +84,9 @@ export class Sidecar {
       }
 
       result[hat.hatStyle].push(rangeToPlainObject(hat.hatRange));
-      serialized[filename] = result;
     });
+    serialized[filename] = result;
+
     const hatsFileName = `vscode-hats.json`;
     const directory = this.rootDirectory;
 
