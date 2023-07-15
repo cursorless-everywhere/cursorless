@@ -6,6 +6,7 @@ import { registerFileWatchers } from "./synchronization";
 import { startCommandServer } from "./commandServer";
 import * as path from "path";
 import {isTesting} from "@cursorless/common";
+import * as os from "os";
 
 /**
  * Returns whether we should run as the Cursorless everywhere sidecar.
@@ -53,10 +54,15 @@ export function sidecarSetup(rootDirectory: string, sidecarPrefix: string) {
   registerFileWatchers(rootDirectory);
   startCommandServer(rootDirectory);
 
+  const homeDir = os.homedir();
+  let rootDirectoryNice = rootDirectory;
+  if (rootDirectory.startsWith(homeDir)) {
+    rootDirectoryNice = "~" + rootDirectory.slice(homeDir.length);
+  }
+
   vscode.window.showInformationMessage(
-    `Cursorless has successfully started in sidecar mode!${
-      sidecarPrefix ? ` (prefix: ${sidecarPrefix}/)` : ""
-    }`,
+    `Cursorless sidecar ready! (root: ${rootDirectoryNice})`
+    ,
   );
 }
 
