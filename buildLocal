@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -ex
+
+cd packages/cursorless-vscode || exit 1
+
+npm run install-local
