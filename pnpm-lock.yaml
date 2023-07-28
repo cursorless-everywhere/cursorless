@@ -217,8 +217,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       itertools:
-        specifier: ^1.7.1
-        version: 1.7.1
+        specifier: ^2.1.1
+        version: 2.1.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -387,12 +387,21 @@ importers:
       '@cursorless/vscode-common':
         specifier: workspace:*
         version: link:../vscode-common
+      '@types/tinycolor2':
+        specifier: 1.4.3
+        version: 1.4.3
+      itertools:
+        specifier: ^2.1.1
+        version: 2.1.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
       semver:
         specifier: ^7.3.9
         version: 7.4.0
+      tinycolor2:
+        specifier: 1.6.0
+        version: 1.6.0
       uuid:
         specifier: ^9.0.0
         version: 9.0.0
@@ -5678,6 +5687,10 @@ packages:
   /@types/stack-utils@2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
 
+  /@types/tinycolor2@1.4.3:
+    resolution: {integrity: sha512-Kf1w9NE5HEgGxCRyIcRXR/ZYtDv0V8FVPtYHwLxl0O+maGX0erE77pQlD0gpP+/KByMZ87mOA79SjifhSB3PjQ==}
+    dev: false
+
   /@types/tough-cookie@4.0.2:
     resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
     dev: true
@@ -10825,10 +10838,8 @@ packages:
       html-escaper: 2.0.2
       istanbul-lib-report: 3.0.0
 
-  /itertools@1.7.1:
-    resolution: {integrity: sha512-0sC8t0HYOH0wb/mU5eLmp2g19yfhqho12Q6kCX6MGkNEEJQz97LIXzZ2bbIDyzBnQGcMixmcAtByzKjiaFkw8Q==}
-    dependencies:
-      '@babel/runtime': 7.21.0
+  /itertools@2.1.1:
+    resolution: {integrity: sha512-T0icRZBQfWSwhdeBvJT3Sg1m3lBOv1RCD2m+vnY7F12sIInidVDLIn5Fbu1/1gAMN8XIjzkDP48ukF7mTRn/fw==}
     dev: false
 
   /jake@10.8.5:
@@ -12626,7 +12637,7 @@ packages:
       levn: 0.3.0
       prelude-ls: 1.1.2
       type-check: 0.3.2
-      word-wrap: 1.2.3
+      word-wrap: 1.2.4
     dev: true
 
   /optionator@0.9.1:
@@ -12638,7 +12649,7 @@ packages:
       levn: 0.4.1
       prelude-ls: 1.2.1
       type-check: 0.4.0
-      word-wrap: 1.2.3
+      word-wrap: 1.2.4
 
   /ora@5.4.1:
     resolution: {integrity: sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==}
@@ -15579,6 +15590,10 @@ packages:
     resolution: {integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==}
     dev: false
 
+  /tinycolor2@1.6.0:
+    resolution: {integrity: sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==}
+    dev: false
+
   /tinylogic@2.0.0:
     resolution: {integrity: sha512-dljTkiLLITtsjqBvTA1MRZQK/sGP4kI3UJKc3yA9fMzYbMF2RhcN04SeROVqJBIYYOoJMM8u0WDnhFwMSFQotw==}
     dev: true
@@ -16757,8 +16772,8 @@ packages:
   /wildcard@2.0.0:
     resolution: {integrity: sha512-JcKqAHLPxcdb9KM49dufGXn2x3ssnfjbcaQdLlfZsL9rH9wgDQjUtDxbo8NE0F6SFvydeu1VhZe7hZuHsB2/pw==}
 
-  /word-wrap@1.2.3:
-    resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}
+  /word-wrap@1.2.4:
+    resolution: {integrity: sha512-2V81OA4ugVo5pRo46hAoD2ivUJx8jXmWXfUkY4KFNw0hEptvN0QfH3K4nHiwzGeKl5rFKedV48QVoqYavy4YpA==}
     engines: {node: '>=0.10.0'}
 
   /wordwrap@1.0.0:

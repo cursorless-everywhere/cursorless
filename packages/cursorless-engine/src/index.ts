@@ -6,3 +6,5 @@ export * from "./core/StoredTargets";
 export * from "./typings/TreeSitter";
 export * from "./cursorlessEngine";
 export * from "./singletons/sidecar.singleton";
+export * from "./api/CursorlessEngineApi";
+export * from "./api/ScopeProvider";

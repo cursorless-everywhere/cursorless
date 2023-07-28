@@ -1,14 +1,17 @@
 import {
   FakeIDE,
   getFakeCommandServerApi,
+  IDE,
   isTesting,
   NormalizedIDE,
   Range,
   Sidecar,
+  ScopeType,
   TextDocument,
 } from "@cursorless/common";
 import {
   createCursorlessEngine,
+  ScopeProvider,
   TreeSitter,
 } from "@cursorless/cursorless-engine";
 import {
@@ -34,6 +37,14 @@ import {
 } from "./sidecar/environment";
 
 let _sc: Sidecar;
+import {
+  createVscodeScopeVisualizer,
+  VscodeScopeVisualizer,
+} from "./ide/vscode/VSCodeScopeVisualizer";
+import {
+  ScopeVisualizerCommandApi,
+  VisualizationType,
+} from "./ScopeVisualizerCommandApi";
 
 /**
  * Extension entrypoint called by VSCode on Cursorless startup.
@@ -78,6 +89,7 @@ export async function activate(
     testCaseRecorder,
     storedTargets,
     hatTokenMap,
+    scopeProvider,
     snippets,
     injectIde,
     runIntegrationTests,
@@ -105,6 +117,7 @@ export async function activate(
     vscodeIDE,
     commandApi,
     testCaseRecorder,
+    createScopeVisualizerCommandApi(normalizedIde ?? vscodeIDE, scopeProvider),
     keyboardCommands,
     hats,
   );
@@ -157,6 +170,31 @@ function createTreeSitter(parseTreeApi: ParseTreeApi): TreeSitter {
 
     loadLanguage: parseTreeApi.loadLanguage,
     getLanguage: parseTreeApi.getLanguage,
+  };
+}
+
+function createScopeVisualizerCommandApi(
+  ide: IDE,
+  scopeProvider: ScopeProvider,
+): ScopeVisualizerCommandApi {
+  let scopeVisualizer: VscodeScopeVisualizer | undefined;
+
+  return {
+    start(scopeType: ScopeType, visualizationType: VisualizationType) {
+      scopeVisualizer?.dispose();
+      scopeVisualizer = createVscodeScopeVisualizer(
+        ide,
+        scopeProvider,
+        scopeType,
+        visualizationType,
+      );
+      scopeVisualizer.start();
+    },
+
+    stop() {
+      scopeVisualizer?.dispose();
+      scopeVisualizer = undefined;
+    },
   };
 }
 
