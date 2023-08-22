@@ -4,8 +4,7 @@ import tokenGraphemeSplitter from "../singletons/tokenGraphemeSplitter.singleton
 import { allocateHats } from "../util/allocateHats";
 import { Debouncer } from "./Debouncer";
 import { IndividualHatMap } from "./IndividualHatMap";
-import {sidecar} from "../singletons/sidecar.singleton";
-
+import { sidecar } from "../singletons/sidecar.singleton";
 
 interface Context {
   getActiveMap(): Promise<IndividualHatMap>;
@@ -15,10 +14,7 @@ export class HatAllocator {
   private disposables: Disposable[] = [];
   private debouncer = new Debouncer(() => this.allocateHats());
 
-  constructor(
-    private hats: Hats,
-    private context: Context,
-  ) {
+  constructor(private hats: Hats, private context: Context) {
     ide().disposeOnExit(this);
 
     this.disposables.push(

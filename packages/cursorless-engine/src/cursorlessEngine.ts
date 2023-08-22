@@ -4,7 +4,7 @@ import {
   FileSystem,
   Hats,
   IDE,
-  Sidecar
+  Sidecar,
 } from "@cursorless/common";
 import { StoredTargetMap, TestCaseRecorder, TreeSitter } from ".";
 import { CursorlessEngine } from "./api/CursorlessEngineApi";

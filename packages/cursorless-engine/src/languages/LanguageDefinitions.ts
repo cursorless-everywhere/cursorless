@@ -42,10 +42,7 @@ export class LanguageDefinitions {
   private queryDir: string;
   private disposables: Disposable[] = [];
 
-  constructor(
-    fileSystem: FileSystem,
-    private treeSitter: TreeSitter,
-  ) {
+  constructor(fileSystem: FileSystem, private treeSitter: TreeSitter) {
     // Use the repo root as the root for development mode, so that we can
     // we can make hot-reloading work for the queries
     this.queryDir = join(

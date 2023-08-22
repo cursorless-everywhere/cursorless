@@ -5,7 +5,7 @@ import { CURSORLESS_ROOT_DIRECTORY } from "./constants";
 import { registerFileWatchers } from "./synchronization";
 import { startCommandServer } from "./commandServer";
 import * as path from "path";
-import {isTesting} from "@cursorless/common";
+import { isTesting } from "@cursorless/common";
 import * as os from "os";
 
 /**
@@ -61,8 +61,7 @@ export function sidecarSetup(rootDirectory: string, sidecarPrefix: string) {
   }
 
   vscode.window.showInformationMessage(
-    `Cursorless sidecar ready! (root: ${rootDirectoryNice})`
-    ,
+    `Cursorless sidecar ready! (root: ${rootDirectoryNice})`,
   );
 }
 

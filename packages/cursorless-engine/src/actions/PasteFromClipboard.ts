@@ -16,10 +16,7 @@ import { Actions } from "./Actions";
 import { ActionReturnValue } from "./actions.types";
 
 export class PasteFromClipboard {
-  constructor(
-    private rangeUpdater: RangeUpdater,
-    private actions: Actions,
-  ) {}
+  constructor(private rangeUpdater: RangeUpdater, private actions: Actions) {}
 
   async run(destinations: Destination[]): Promise<ActionReturnValue> {
     const editor = ide().getEditableTextEditor(

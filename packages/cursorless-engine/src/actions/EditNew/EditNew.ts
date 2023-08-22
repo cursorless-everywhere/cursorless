@@ -11,10 +11,7 @@ import { runInsertLineAfterTargets } from "./runInsertLineAfterTargets";
 import { runEditNewNotebookCellTargets } from "./runNotebookCellTargets";
 
 export class EditNew {
-  constructor(
-    private rangeUpdater: RangeUpdater,
-    private actions: Actions,
-  ) {
+  constructor(private rangeUpdater: RangeUpdater, private actions: Actions) {
     this.run = this.run.bind(this);
   }
 

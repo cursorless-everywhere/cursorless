@@ -29,9 +29,10 @@ import { VscodeHats } from "./ide/vscode/hats/VscodeHats";
 import { VscodeFileSystem } from "./ide/vscode/VscodeFileSystem";
 import { VscodeIDE } from "./ide/vscode/VscodeIDE";
 import {
-  shouldBeSidecar, sidecarDirectory,
+  shouldBeSidecar,
+  sidecarDirectory,
   sidecarPrefix,
-  sidecarSetup
+  sidecarSetup,
 } from "./sidecar/environment";
 
 let _sc: Sidecar;

@@ -1,11 +1,10 @@
 import * as console from "console";
-import {TokenHat} from "../types/HatTokenMap";
-import {rangeToPlainObject} from "../testUtil/toPlainObject";
+import { TokenHat } from "../types/HatTokenMap";
+import { rangeToPlainObject } from "../testUtil/toPlainObject";
 import path from "path";
-import os from "os";
 import fs from "fs";
-import {IDE} from "../ide/types/ide.types";
-import {Range} from "../types/Range";
+import { IDE } from "../ide/types/ide.types";
+import { Range } from "../types/Range";
 
 export class Sidecar {
   readonly enabled: boolean;
@@ -73,8 +72,6 @@ export class Sidecar {
     const filename = ide.activeTextEditor?.document.uri.path;
 
     tokenHats.forEach((hat: TokenHat) => {
-
-
       if (!filename) {
         return;
       }
@@ -115,5 +112,4 @@ export class Sidecar {
       // );
     }
   }
-
 }

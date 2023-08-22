@@ -27,10 +27,7 @@ export async function applyPrimaryEditorState(rootDirectory: string) {
 
   // TODO(pcohen): diff the state against the previous state
   const state = JSON.parse(
-    fs.readFileSync(
-      path.join(rootDirectory, "editor-state.json"),
-      "utf8",
-    ),
+    fs.readFileSync(path.join(rootDirectory, "editor-state.json"), "utf8"),
   );
   const activeEditorState = state["activeEditor"];
 

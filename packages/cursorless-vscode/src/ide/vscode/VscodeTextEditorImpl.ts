@@ -12,9 +12,7 @@ import {
   TextEditorOptions,
 } from "@cursorless/common";
 
-import {
-  sidecar,
-} from "@cursorless/cursorless-engine";
+import { sidecar } from "@cursorless/cursorless-engine";
 
 // import {sidecar} from "@cursorless/cursorless-engine";
 import {
@@ -63,7 +61,6 @@ export class VscodeTextEditorImpl implements EditableTextEditor {
   }
 
   get visibleRanges(): Range[] {
-
     // -- Sidecar fork start --
     // TODO(pcohen): properly override this class rather than adding
     // dynamic checks
