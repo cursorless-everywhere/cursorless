@@ -1,6 +1,7 @@
 import {
   Command,
   CommandServerApi,
+  FileSystem,
   Hats,
   IDE,
   Sidecar
@@ -31,6 +32,7 @@ export function createCursorlessEngine(
   sidecar: Sidecar,
   hats: Hats,
   commandServerApi: CommandServerApi | null,
+  fileSystem: FileSystem,
 ): CursorlessEngine {
   injectIde(ide);
   injectSidecar(sidecar);
@@ -38,7 +40,6 @@ export function createCursorlessEngine(
   const debug = new Debug(treeSitter);
 
   const rangeUpdater = new RangeUpdater();
-  ide.disposeOnExit(rangeUpdater);
 
   const snippets = new Snippets();
   snippets.init();
@@ -55,7 +56,9 @@ export function createCursorlessEngine(
 
   const testCaseRecorder = new TestCaseRecorder(hatTokenMap, storedTargets);
 
-  const languageDefinitions = new LanguageDefinitions(treeSitter);
+  const languageDefinitions = new LanguageDefinitions(fileSystem, treeSitter);
+
+  ide.disposeOnExit(rangeUpdater, languageDefinitions, hatTokenMap, debug);
 
   return {
     commandApi: {
@@ -111,7 +114,10 @@ function createScopeProvider(
     ),
   );
 
-  const rangeWatcher = new ScopeRangeWatcher(rangeProvider);
+  const rangeWatcher = new ScopeRangeWatcher(
+    languageDefinitions,
+    rangeProvider,
+  );
   const supportChecker = new ScopeSupportChecker(scopeHandlerFactory);
 
   return {
