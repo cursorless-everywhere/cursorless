@@ -50,13 +50,13 @@ async function handleRequest(requestObj: any) {
       requestObj.commandId,
       ...args,
     );
-    return {result: result};
+    return { result: result };
   }
 
   try {
     switch (requestObj.command) {
       case "ping":
-        return {response: "pong"};
+        return { response: "pong" };
       case "state":
         return vsCodeState();
       case "eval":
@@ -67,9 +67,9 @@ async function handleRequest(requestObj: any) {
         // TODO(pcohen): this may change the editor state,
         // but it doesn't actually block on Cursorless applying those changes
         applyPrimaryEditorState();
-        return {response: "OK"};
+        return { response: "OK" };
       case "command":
-        return {result: await runVSCodeCommand(requestObj)};
+        return { result: await runVSCodeCommand(requestObj) };
       case "cursorless": {
         // NOTE(pcohen): this need not be Cursorless specific; perhaps a better command name might be
         // along the lines of "execute command and serialize state"
@@ -105,16 +105,15 @@ async function handleRequest(requestObj: any) {
       case "pid":
         return `${process.pid}`;
       default:
-        return {error: `invalid command: ${requestObj.command}`};
+        return { error: `invalid command: ${requestObj.command}` };
     }
   } catch (e) {
     vscode.window.showInformationMessage(
       `Error during evaluation of command "${requestObj.command}": ${e}`,
     );
-    return {error: `exception during execution: ${e}`};
+    return { error: `exception during execution: ${e}` };
   }
 }
-
 
 export function startCommandServer(sidecarDirectory: string) {
   try {
