@@ -64,6 +64,7 @@ export function createCursorlessEngine(
     commandApi: {
       runCommand(command: Command) {
         return runCommand(
+          treeSitter,
           debug,
           hatTokenMap,
           testCaseRecorder,
@@ -77,6 +78,7 @@ export function createCursorlessEngine(
 
       runCommandSafe(...args: unknown[]) {
         return runCommand(
+          treeSitter,
           debug,
           hatTokenMap,
           testCaseRecorder,
