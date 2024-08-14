@@ -23,7 +23,7 @@ def cursorless_grapheme(m) -> str:
     except AttributeError:
         # NB: This represents unknown char in Unicode.  It will be translated
         # to "[unk]" by Cursorless extension.
-        return "\uFFFD"
+        return "\ufffd"
 
 
 @mod.capture(
@@ -138,7 +138,7 @@ def setup_hat_styles_csv(hat_colors: dict[str, str], hat_shapes: dict[str, str])
             "hat_color": active_hat_colors,
             "hat_shape": active_hat_shapes,
         },
-        [*hat_colors.values(), *hat_shapes.values()],
+        extra_ignored_values=[*hat_colors.values(), *hat_shapes.values()],
         no_update_file=is_shape_error or is_color_error,
     )
 

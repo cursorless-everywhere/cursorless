@@ -1,21 +1,21 @@
-import {
+import type {
   Direction,
   OneOfScopeType,
   Position,
   TextEditor,
 } from "@cursorless/common";
-import BaseScopeHandler from "./BaseScopeHandler";
+import { BaseScopeHandler } from "./BaseScopeHandler";
 import { advanceIteratorsUntil, getInitialIteratorInfos } from "./IteratorInfo";
-import { ScopeHandlerFactory } from "./ScopeHandlerFactory";
+import type { ScopeHandlerFactory } from "./ScopeHandlerFactory";
 import { compareTargetScopes } from "./compareTargetScopes";
 import type { TargetScope } from "./scope.types";
-import {
+import type {
   CustomScopeType,
   ScopeHandler,
   ScopeIteratorRequirements,
 } from "./scopeHandler.types";
 
-export default class OneOfScopeHandler extends BaseScopeHandler {
+export class OneOfScopeHandler extends BaseScopeHandler {
   protected isHierarchical = true;
 
   static create(

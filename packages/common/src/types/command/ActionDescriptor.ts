@@ -1,30 +1,36 @@
-import {
+import type {
   PartialTargetDescriptor,
   ScopeType,
 } from "./PartialTargetDescriptor.types";
-import { DestinationDescriptor } from "./DestinationDescriptor.types";
+import type { DestinationDescriptor } from "./DestinationDescriptor.types";
 
 /**
  * A simple action takes only a single target and no other arguments.
  */
-const simpleActionNames = [
+export const simpleActionNames = [
+  "breakLine",
   "clearAndSetSelection",
   "copyToClipboard",
   "cutToClipboard",
+  "decrement",
   "deselect",
   "editNewLineAfter",
   "editNewLineBefore",
   "experimental.setInstanceReference",
   "extractVariable",
+  "findInDocument",
   "findInWorkspace",
   "foldRegion",
   "followLink",
+  "followLinkAside",
+  "increment",
   "indentLine",
   "insertCopyAfter",
   "insertCopyBefore",
   "insertEmptyLineAfter",
   "insertEmptyLineBefore",
   "insertEmptyLinesAround",
+  "joinLines",
   "outdentLine",
   "randomizeTargets",
   "remove",
@@ -46,6 +52,7 @@ const simpleActionNames = [
   "toggleLineBreakpoint",
   "toggleLineComment",
   "unfoldRegion",
+  "private.setKeyboardTarget",
   "private.showParseTree",
   "private.getTargets",
 ] as const;
@@ -66,6 +73,7 @@ const complexActionNames = [
   "swapTargets",
   "wrapWithPairedDelimiter",
   "wrapWithSnippet",
+  "parsed",
 ] as const;
 
 export const actionNames = [
@@ -136,7 +144,7 @@ interface NamedInsertSnippetArg {
 interface CustomInsertSnippetArg {
   type: "custom";
   body: string;
-  scopeType?: ScopeType;
+  scopeTypes?: ScopeType[];
   substitutions?: Record<string, string>;
 }
 export type InsertSnippetArg = NamedInsertSnippetArg | CustomInsertSnippetArg;
@@ -213,6 +221,12 @@ export interface GetTextActionDescriptor {
   target: PartialTargetDescriptor;
 }
 
+interface ParsedActionDescriptor {
+  name: "parsed";
+  content: string;
+  arguments: unknown[];
+}
+
 export type ActionDescriptor =
   | SimpleActionDescriptor
   | BringMoveActionDescriptor
@@ -227,4 +241,5 @@ export type ActionDescriptor =
   | WrapWithSnippetActionDescriptor
   | WrapWithPairedDelimiterActionDescriptor
   | EditNewActionDescriptor
-  | GetTextActionDescriptor;
+  | GetTextActionDescriptor
+  | ParsedActionDescriptor;

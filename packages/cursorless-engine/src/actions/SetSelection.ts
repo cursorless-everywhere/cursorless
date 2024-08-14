@@ -1,9 +1,8 @@
 import { Selection } from "@cursorless/common";
 import { ide } from "../singletons/ide.singleton";
-import { Target } from "../typings/target.types";
-import { setSelectionsAndFocusEditor } from "../util/setSelectionsAndFocusEditor";
+import type { Target } from "../typings/target.types";
 import { ensureSingleEditor } from "../util/targetUtils";
-import { SimpleAction, ActionReturnValue } from "./actions.types";
+import type { SimpleAction, ActionReturnValue } from "./actions.types";
 
 export class SetSelection implements SimpleAction {
   constructor() {
@@ -18,10 +17,9 @@ export class SetSelection implements SimpleAction {
     const editor = ensureSingleEditor(targets);
 
     const selections = targets.map(this.getSelection);
-    await setSelectionsAndFocusEditor(
-      ide().getEditableTextEditor(editor),
-      selections,
-    );
+    await ide()
+      .getEditableTextEditor(editor)
+      .setSelections(selections, { focusEditor: true });
 
     return {
       thatTargets: targets,

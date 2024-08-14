@@ -1,12 +1,12 @@
-import type { EveryScopeModifier, TextEditor } from "@cursorless/common";
-import { NoContainingScopeError, Range } from "@cursorless/common";
+import type { EveryScopeModifier, TextEditor, Range } from "@cursorless/common";
+import { NoContainingScopeError } from "@cursorless/common";
 import type { Target } from "../../typings/target.types";
-import { ModifierStageFactory } from "../ModifierStageFactory";
+import type { ModifierStageFactory } from "../ModifierStageFactory";
 import type { ModifierStage } from "../PipelineStages.types";
 import { getContainingScopeTarget } from "./getContainingScopeTarget";
-import { ScopeHandlerFactory } from "./scopeHandlers/ScopeHandlerFactory";
-import { TargetScope } from "./scopeHandlers/scope.types";
-import { ScopeHandler } from "./scopeHandlers/scopeHandler.types";
+import type { ScopeHandlerFactory } from "./scopeHandlers/ScopeHandlerFactory";
+import type { TargetScope } from "./scopeHandlers/scope.types";
+import type { ScopeHandler } from "./scopeHandlers/scopeHandler.types";
 
 /**
  * This modifier returns all scopes intersecting the input target if the target
@@ -73,13 +73,20 @@ export class EveryScopeStage implements ModifierStage {
     if (scopes == null) {
       // If target had no explicit range, or was contained by a single target
       // instance, expand to iteration scope before overlapping
-      scopes = this.getDefaultIterationRange(
-        scopeHandler,
-        this.scopeHandlerFactory,
-        target,
-      ).flatMap((iterationRange) =>
-        getScopesOverlappingRange(scopeHandler, editor, iterationRange),
-      );
+      try {
+        scopes = this.getDefaultIterationRange(
+          scopeHandler,
+          this.scopeHandlerFactory,
+          target,
+        ).flatMap((iterationRange) =>
+          getScopesOverlappingRange(scopeHandler, editor, iterationRange),
+        );
+      } catch (error) {
+        if (!(error instanceof NoContainingScopeError)) {
+          throw error;
+        }
+        scopes = [];
+      }
     }
 
     if (scopes.length === 0) {

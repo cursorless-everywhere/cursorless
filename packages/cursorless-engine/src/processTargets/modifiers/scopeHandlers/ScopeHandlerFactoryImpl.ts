@@ -1,20 +1,29 @@
 import type { ScopeType } from "@cursorless/common";
+import type { LanguageDefinitions } from "../../../languages/LanguageDefinitions";
 import {
-  CharacterScopeHandler,
+  BoundedNonWhitespaceSequenceScopeHandler,
+  BoundedParagraphScopeHandler,
+} from "./BoundedScopeHandler";
+import { CharacterScopeHandler } from "./CharacterScopeHandler";
+import { DocumentScopeHandler } from "./DocumentScopeHandler";
+import { IdentifierScopeHandler } from "./IdentifierScopeHandler";
+import { LineScopeHandler } from "./LineScopeHandler";
+import { OneOfScopeHandler } from "./OneOfScopeHandler";
+import { ParagraphScopeHandler } from "./ParagraphScopeHandler";
+import {
   CustomRegexScopeHandler,
-  DocumentScopeHandler,
-  IdentifierScopeHandler,
-  LineScopeHandler,
+  GlyphScopeHandler,
   NonWhitespaceSequenceScopeHandler,
-  OneOfScopeHandler,
-  ParagraphScopeHandler,
-  ScopeHandlerFactory,
-  SentenceScopeHandler,
-  TokenScopeHandler,
   UrlScopeHandler,
-  WordScopeHandler,
-} from ".";
-import { LanguageDefinitions } from "../../../languages/LanguageDefinitions";
+} from "./RegexScopeHandler";
+import type { ScopeHandlerFactory } from "./ScopeHandlerFactory";
+import { SentenceScopeHandler } from "./SentenceScopeHandler/SentenceScopeHandler";
+import {
+  SurroundingPairInteriorScopeHandler,
+  SurroundingPairScopeHandler,
+} from "./SurroundingPairScopeHandler";
+import { TokenScopeHandler } from "./TokenScopeHandler";
+import { WordScopeHandler } from "./WordScopeHandler/WordScopeHandler";
 import type { CustomScopeType, ScopeHandler } from "./scopeHandler.types";
 
 /**
@@ -58,6 +67,8 @@ export class ScopeHandlerFactoryImpl implements ScopeHandlerFactory {
         return new SentenceScopeHandler(this, scopeType, languageId);
       case "paragraph":
         return new ParagraphScopeHandler(scopeType, languageId);
+      case "boundedParagraph":
+        return new BoundedParagraphScopeHandler(this, scopeType, languageId);
       case "document":
         return new DocumentScopeHandler(scopeType, languageId);
       case "oneOf":
@@ -68,10 +79,30 @@ export class ScopeHandlerFactoryImpl implements ScopeHandlerFactory {
           scopeType,
           languageId,
         );
+      case "boundedNonWhitespaceSequence":
+        return new BoundedNonWhitespaceSequenceScopeHandler(
+          this,
+          scopeType,
+          languageId,
+        );
       case "url":
         return new UrlScopeHandler(this, scopeType, languageId);
       case "customRegex":
         return new CustomRegexScopeHandler(this, scopeType, languageId);
+      case "glyph":
+        return new GlyphScopeHandler(this, scopeType, languageId);
+      case "surroundingPair":
+        return new SurroundingPairScopeHandler(
+          this.languageDefinitions,
+          scopeType,
+          languageId,
+        );
+      case "surroundingPairInterior":
+        return new SurroundingPairInteriorScopeHandler(
+          this,
+          scopeType,
+          languageId,
+        );
       case "custom":
         return scopeType.scopeHandler;
       case "instance":

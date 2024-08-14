@@ -1,23 +1,27 @@
-import {
+import type {
   Listener,
-  Notifier,
+  Messages,
   PathChangeListener,
-  walkFiles,
 } from "@cursorless/common";
-import { cloneDeep, isEqual } from "lodash";
-import * as fs from "node:fs";
+import { Notifier } from "@cursorless/common";
+import { walkFiles } from "@cursorless/node-common";
+import type { VscodeApi } from "@cursorless/vscode-common";
+import * as fs from "node:fs/promises";
+import { cloneDeep, isEqual } from "lodash-es";
 import * as path from "node:path";
 import * as vscode from "vscode";
-import VscodeEnabledHatStyleManager, {
-  ExtendedHatStyleMap,
-} from "../VscodeEnabledHatStyleManager";
-import { HAT_SHAPES, HatShape, VscodeHatStyleName } from "../hatStyles.types";
-import { FontMeasurements } from "./FontMeasurements";
+import { vscodeGetConfigurationString } from "../VscodeConfiguration";
+import type { ExtendedHatStyleMap } from "../VscodeEnabledHatStyleManager";
+import type VscodeEnabledHatStyleManager from "../VscodeEnabledHatStyleManager";
+import type { HatShape, VscodeHatStyleName } from "../hatStyles.types";
+import { HAT_SHAPES } from "../hatStyles.types";
+import type { FontMeasurements } from "./FontMeasurements";
 import getHatThemeColors from "./getHatThemeColors";
+import { performPr1868ShapeUpdateInit } from "./performPr1868ShapeUpdateInit";
+import type { IndividualHatAdjustmentMap } from "./shapeAdjustments";
 import {
   DEFAULT_HAT_HEIGHT_EM,
   DEFAULT_VERTICAL_OFFSET_EM,
-  IndividualHatAdjustmentMap,
   defaultShapeAdjustments,
 } from "./shapeAdjustments";
 
@@ -40,33 +44,34 @@ const hatConfigSections = [
   "cursorless.individualHatAdjustments",
 ];
 
+const hatShapesDirSettingId = "cursorless.private.hatShapesDir";
+
+interface SvgInfo {
+  svg: string;
+  svgHeightPx: number;
+  svgWidthPx: number;
+  strokeWidth: number;
+}
+
 /**
  * Maintains the VSCode decoration type objects corresponding to each hat style.
  * This class is responsible for the actual svgs / colors used to render the
  * hats.  The decision about which hat styles should be available is up to
  * {@link VscodeEnabledHatStyles}
  */
-
-const SETTING_SECTION_HAT_SHAPES_DIR = "cursorless.private";
-const SETTING_NAME_HAT_SHAPES_DIR = "hatShapesDir";
-const hatShapesDirSettingId = `${SETTING_SECTION_HAT_SHAPES_DIR}.${SETTING_NAME_HAT_SHAPES_DIR}`;
-
-interface SvgInfo {
-  svg: string;
-  svgHeightPx: number;
-  svgWidthPx: number;
-}
-
 export default class VscodeHatRenderer {
   private decorationMap!: HatDecorationMap;
   private disposables: vscode.Disposable[] = [];
   private notifier: Notifier<[]> = new Notifier();
   private lastSeenEnabledHatStyles: ExtendedHatStyleMap = {};
   private hatsDirWatcherDisposable?: vscode.Disposable;
-  private hatShapeOverrides: Record<string, string> = {};
+  private hatShapeOverrides: Record<string, vscode.Uri> = {};
+  private decoder = new TextDecoder("utf-8");
 
   constructor(
+    private vscodeApi: VscodeApi,
     private extensionContext: vscode.ExtensionContext,
+    private messages: Messages,
     private enabledHatStyles: VscodeEnabledHatStyleManager,
     private fontMeasurements: FontMeasurements,
   ) {
@@ -90,7 +95,7 @@ export default class VscodeHatRenderer {
   }
 
   public async forceRecomputeDecorationStyles() {
-    this.fontMeasurements.clearCache();
+    await this.fontMeasurements.clearCache();
     await this.recomputeDecorations();
   }
 
@@ -124,18 +129,18 @@ export default class VscodeHatRenderer {
 
   private async updateHatsDirWatcher() {
     this.hatsDirWatcherDisposable?.dispose();
-
-    const hatsDir = vscode.workspace
-      .getConfiguration(SETTING_SECTION_HAT_SHAPES_DIR)
-      .get<string>(SETTING_NAME_HAT_SHAPES_DIR)!;
+    const hatsDir = vscodeGetConfigurationString(hatShapesDirSettingId);
 
     if (hatsDir) {
       await this.updateShapeOverrides(hatsDir);
 
-      if (fs.existsSync(hatsDir)) {
+      try {
+        await fs.access(hatsDir);
         this.hatsDirWatcherDisposable = watchDir(hatsDir, () =>
           this.updateShapeOverrides(hatsDir),
         );
+      } catch (e) {
+        console.error("cannot watch hatsDir", hatsDir, e);
       }
     } else {
       this.hatShapeOverrides = {};
@@ -149,7 +154,10 @@ export default class VscodeHatRenderer {
 
     for (const file of files) {
       const name = path.basename(file, CURSORLESS_HAT_SHAPES_SUFFIX);
-      this.hatShapeOverrides[name] = file;
+      this.hatShapeOverrides[name] = vscode.Uri.from({
+        scheme: "file",
+        path: file,
+      });
     }
 
     await this.recomputeDecorations();
@@ -195,35 +203,52 @@ export default class VscodeHatRenderer {
       .getConfiguration("cursorless")
       .get<IndividualHatAdjustmentMap>("individualHatAdjustments")!;
 
+    void performPr1868ShapeUpdateInit(
+      this.extensionContext,
+      this.vscodeApi,
+      this.messages,
+      this.enabledHatStyles.hatStyleMap,
+      userSizeAdjustment,
+      userVerticalOffset,
+      userIndividualAdjustments,
+    );
+
     const hatSvgMap = Object.fromEntries(
-      HAT_SHAPES.map((shape) => {
-        const { sizeAdjustment = 0, verticalOffset = 0 } =
-          defaultShapeAdjustments[shape];
+      await Promise.all(
+        HAT_SHAPES.map(async (shape) => {
+          const { sizeAdjustment = 0, verticalOffset = 0 } =
+            defaultShapeAdjustments[shape];
 
-        const {
-          sizeAdjustment: userIndividualSizeAdjustment = 0,
-          verticalOffset: userIndividualVerticalOffset = 0,
-        } = userIndividualAdjustments[shape] ?? {};
+          const {
+            sizeAdjustment: userIndividualSizeAdjustment = 0,
+            verticalOffset: userIndividualVerticalOffset = 0,
+          } = userIndividualAdjustments[shape] ?? {};
 
-        const scaleFactor =
-          1 +
-          (sizeAdjustment + userSizeAdjustment + userIndividualSizeAdjustment) /
+          const scaleFactor =
+            1 +
+            (sizeAdjustment +
+              userSizeAdjustment +
+              userIndividualSizeAdjustment) /
+              100;
+
+          const finalVerticalOffsetEm =
+            (verticalOffset +
+              userVerticalOffset +
+              userIndividualVerticalOffset) /
             100;
 
-        const finalVerticalOffsetEm =
-          (verticalOffset + userVerticalOffset + userIndividualVerticalOffset) /
-          100;
-
-        return [
-          shape,
-          this.processSvg(
-            this.fontMeasurements,
+          return [
             shape,
-            scaleFactor,
-            finalVerticalOffsetEm,
-          ),
-        ];
-      }),
+            await this.processSvg(
+              this.fontMeasurements,
+              shape,
+              scaleFactor,
+              defaultShapeAdjustments[shape].strokeFactor ?? 1,
+              finalVerticalOffsetEm,
+            ),
+          ];
+        }),
+      ),
     );
 
     this.decorationMap = Object.fromEntries(
@@ -238,7 +263,7 @@ export default class VscodeHatRenderer {
             ];
           }
 
-          const { svg, svgWidthPx, svgHeightPx } = svgInfo;
+          const { svgWidthPx, svgHeightPx } = svgInfo;
 
           const { light, dark } = getHatThemeColors(color);
 
@@ -248,12 +273,18 @@ export default class VscodeHatRenderer {
               rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
               light: {
                 before: {
-                  contentIconPath: this.constructColoredSvgDataUri(svg, light),
+                  contentIconPath: this.constructColoredSvgDataUri(
+                    svgInfo,
+                    light,
+                  ),
                 },
               },
               dark: {
                 before: {
-                  contentIconPath: this.constructColoredSvgDataUri(svg, dark),
+                  contentIconPath: this.constructColoredSvgDataUri(
+                    svgInfo,
+                    dark,
+                  ),
                 },
               },
               before: {
@@ -279,7 +310,7 @@ export default class VscodeHatRenderer {
       svg.match(/fill="(?!none)[^"]+"/) == null &&
       svg.match(/fill:(?!none)[^;]+;/) == null
     ) {
-      vscode.window.showErrorMessage(
+      void vscode.window.showErrorMessage(
         `Raw svg '${shape}' is missing 'fill' property`,
       );
       isOk = false;
@@ -288,7 +319,7 @@ export default class VscodeHatRenderer {
     const viewBoxMatch = svg.match(/viewBox="([^"]+)"/);
 
     if (viewBoxMatch == null) {
-      vscode.window.showErrorMessage(
+      void vscode.window.showErrorMessage(
         `Raw svg '${shape}' is missing 'viewBox' property`,
       );
       isOk = false;
@@ -297,15 +328,50 @@ export default class VscodeHatRenderer {
     return isOk;
   }
 
-  private constructColoredSvgDataUri(originalSvg: string, color: string) {
-    const svg = originalSvg
-      .replace(/fill="(?!none)[^"]+"/g, `fill="${color}"`)
-      .replace(/fill:(?!none)[^;]+;/g, `fill:${color};`)
+  private constructColoredSvgDataUri(svgInfo: SvgInfo, color: string) {
+    const { svg: originalSvg } = svgInfo;
+    // If color contains a dash, the second part is a stroke.
+    // If you are code spelunking and have found this undocumented (and thus potentially transient) feature,
+    // please subscribe to https://github.com/cursorless-dev/cursorless/pull/1810
+    // so that you can be notified if/when it changes or is removed.
+    const [fill, stroke] = color.split("-");
+    let svg = originalSvg
+      .replace(/fill="(?!none)[^"]+"/g, `fill="${fill}"`)
+      .replace(/fill:(?!none)[^;]+;/g, `fill:${fill};`)
       .replace(/\r?\n/g, " ");
+    if (stroke !== undefined) {
+      svg = this.addInnerStrokeToSvg(svgInfo, svg, stroke);
+    }
 
     const encoded = encodeURIComponent(svg);
 
     return vscode.Uri.parse(`data:image/svg+xml;utf8,${encoded}`);
+  }
+
+  private addInnerStrokeToSvg(
+    svgInfo: SvgInfo,
+    svg: string,
+    stroke: string,
+  ): string {
+    // All hat svgs have exactly one path element. Extract it.
+    const pathRegex = /<path[^>]*d="([^"]+)"[^>]*\/>/;
+    const pathMatch = pathRegex.exec(svg);
+    if (!pathMatch) {
+      console.error(`Could not find path in svg: ${svg}`);
+      return svg;
+    }
+    const pathData = pathMatch[1];
+    const pathEnd = pathMatch.index + pathMatch[0].length;
+
+    // Construct the stroke path and clipPath elements
+    const clipPathElem = `<clipPath id="clipPath"><path d="${pathData}" /></clipPath>`;
+    const strokePathElem = `<path d="${pathData}" stroke="${stroke}" stroke-width="${svgInfo.strokeWidth}" fill="none" clip-path="url(#clipPath)" />`;
+
+    // Insert the elements into the SVG after the original path.
+
+    return (
+      svg.slice(0, pathEnd) + clipPathElem + strokePathElem + svg.slice(pathEnd)
+    );
   }
 
   /**
@@ -316,24 +382,28 @@ export default class VscodeHatRenderer {
    * @param fontMeasurements Info about the user's font
    * @param shape The hat shape to process
    * @param scaleFactor How much to scale the hat
+   * @param strokeFactor How much to scale the width of the stroke
    * @param hatVerticalOffsetEm How far off top of characters should hats be
    * @returns An object with the new SVG and its measurements
    */
-  private processSvg(
+  private async processSvg(
     fontMeasurements: FontMeasurements,
     shape: HatShape,
     scaleFactor: number,
+    strokeFactor: number,
     hatVerticalOffsetEm: number,
-  ): SvgInfo | null {
+  ): Promise<SvgInfo | null> {
     const iconPath =
       this.hatShapeOverrides[shape] ??
-      path.join(
-        this.extensionContext.extensionPath,
+      vscode.Uri.joinPath(
+        this.extensionContext.extensionUri,
         "images",
         "hats",
         `${shape}.svg`,
       );
-    const rawSvg = fs.readFileSync(iconPath, "utf8");
+    const rawSvg = this.decoder.decode(
+      await vscode.workspace.fs.readFile(iconPath),
+    );
     const { characterWidth, characterHeight, fontSize } = fontMeasurements;
 
     if (!this.checkSvg(shape, rawSvg)) {
@@ -384,10 +454,14 @@ export default class VscodeHatRenderer {
       `height="${svgHeightPx}px">` +
       `<g transform="scale(${widthFactor}, 1)">${innerSvg}</g></svg>`;
 
+    const strokeWidth =
+      (1.4 * strokeFactor * originalViewBoxWidth) / svgWidthPx;
+
     return {
       svg,
       svgHeightPx,
       svgWidthPx,
+      strokeWidth,
     };
   }
 
@@ -419,10 +493,9 @@ function watchDir(
     new vscode.RelativePattern(path, `**/*${CURSORLESS_HAT_SHAPES_SUFFIX}`),
   );
 
-  return vscode.Disposable.from(
-    hatsDirWatcher,
-    hatsDirWatcher.onDidChange(onDidChange),
-    hatsDirWatcher.onDidCreate(onDidChange),
-    hatsDirWatcher.onDidDelete(onDidChange),
-  );
+  hatsDirWatcher.onDidChange(onDidChange);
+  hatsDirWatcher.onDidCreate(onDidChange);
+  hatsDirWatcher.onDidDelete(onDidChange);
+
+  return hatsDirWatcher;
 }

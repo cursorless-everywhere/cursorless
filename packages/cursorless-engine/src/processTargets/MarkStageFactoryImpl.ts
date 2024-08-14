@@ -1,15 +1,15 @@
-import { ReadOnlyHatMap } from "@cursorless/common";
-import { TargetPipelineRunner } from ".";
-import { StoredTargetMap } from "..";
-import { Mark } from "../typings/TargetDescriptor";
-import { MarkStageFactory } from "./MarkStageFactory";
-import { MarkStage } from "./PipelineStages.types";
-import CursorStage from "./marks/CursorStage";
-import DecoratedSymbolStage from "./marks/DecoratedSymbolStage";
-import ExplicitMarkStage from "./marks/ExplicitMarkStage";
-import LineNumberStage from "./marks/LineNumberStage";
-import NothingStage from "./marks/NothingStage";
-import RangeMarkStage from "./marks/RangeMarkStage";
+import type { ReadOnlyHatMap } from "@cursorless/common";
+import type { TargetPipelineRunner } from ".";
+import type { StoredTargetMap } from "..";
+import type { Mark } from "../typings/TargetDescriptor";
+import type { MarkStageFactory } from "./MarkStageFactory";
+import type { MarkStage } from "./PipelineStages.types";
+import { CursorStage } from "./marks/CursorStage";
+import { DecoratedSymbolStage } from "./marks/DecoratedSymbolStage";
+import { ExplicitMarkStage } from "./marks/ExplicitMarkStage";
+import { LineNumberStage } from "./marks/LineNumberStage";
+import { NothingStage } from "./marks/NothingStage";
+import { RangeMarkStage } from "./marks/RangeMarkStage";
 import { StoredTargetStage } from "./marks/StoredTargetStage";
 import { TargetMarkStage } from "./marks/TargetMarkStage";
 
@@ -30,9 +30,10 @@ export class MarkStageFactoryImpl implements MarkStageFactory {
   create(mark: Mark): MarkStage {
     switch (mark.type) {
       case "cursor":
-        return new CursorStage(mark);
+        return new CursorStage();
       case "that":
       case "source":
+      case "keyboard":
         return new StoredTargetStage(this.storedTargets, mark.type);
       case "decoratedSymbol":
         return new DecoratedSymbolStage(this.readableHatMap, mark);

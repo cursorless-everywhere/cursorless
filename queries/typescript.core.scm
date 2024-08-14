@@ -4,15 +4,37 @@
 
 ;; import javascript.core.scm
 
-;;!! function aaa(bbb?: Ccc = "ddd") {}
-;;!               ^^^--------------
-(optional_parameter
-  (identifier) @name
+;;!! function aaa(bbb = "ddd") {}
+;;!               ^^^--------
+(required_parameter
+  (identifier) @_.leading.endOf
+  value: (_) @value
+  !type
 ) @_.domain
 
 ;;!! function aaa(bbb: Ccc = "ddd") {}
 ;;!               ^^^-------------
 (required_parameter
+  type: (_) @_.leading.endOf
+  value: (_) @value
+) @_.domain
+
+;;!! function aaa(bbb?: Ccc = "ddd") {}
+;;!               ^^^--------------
+(optional_parameter
+  type: (_) @_.leading.endOf
+  value: (_) @value
+) @_.domain
+
+;;!! function aaa(bbb: Ccc = "ddd") {}
+;;!               ^^^-------------
+(required_parameter
+  (identifier) @name
+) @_.domain
+
+;;!! function aaa(bbb?: Ccc) {}
+;;!               ^^^------
+(optional_parameter
   (identifier) @name
 ) @_.domain
 
@@ -44,7 +66,7 @@
     (public_field_definition
       name: (_) @functionName
       value: [
-        (function
+        (function_expression
           !name
         )
         (generator_function
@@ -60,13 +82,42 @@
 
 (
   ;;!! (public | private | protected) foo = ...;
-  ;;!  -------------------------------^^^-------
+  ;;!  -----------------------------------------
   (public_field_definition
-    name: (_) @name
-  ) @name.domain.start
+    name: (_) @name @value.leading.endOf
+    !type
+    value: (_)? @value @name.trailing.startOf
+  ) @_.domain.start
   .
-  ";"? @name.domain.end
+  ";"? @_.domain.end
 )
+
+(
+  ;;!! (public | private | protected) foo: Bar = ...;
+  ;;!  ----------------------------------------------
+  (public_field_definition
+    name: (_) @name @type.leading.endOf
+    type: (_
+      ":"
+      (_) @type
+    ) @value.leading.endOf
+    value: (_)? @value
+  ) @_.domain.start
+  .
+  ";"? @_.domain.end
+)
+
+(
+  (type_alias_declaration
+    value: (_) @value
+  ) @_.domain
+  (#not-parent-type? @_.domain export_statement)
+)
+(export_statement
+  (type_alias_declaration
+    value: (_) @value
+  )
+) @_.domain
 
 [
   (interface_declaration)
@@ -147,30 +198,69 @@
         (_) @type
       ) @type.removal
     ) @_.domain
-  ) @dummy
-  (#has-multiple-children-of-type? @dummy variable_declarator)
+  ) @_dummy
+  (#has-multiple-children-of-type? @_dummy variable_declarator)
 )
 
-;; Generic type matcher
-(
-  (_
-    [
-      type: (_
-        (_) @type
-      )
-      return_type: (_
-        (_) @type
-      )
-    ] @type.removal
+;;!! function ccc(aaa: string) {}
+;;!                    ^^^^^^
+(formal_parameters
+  (required_parameter
+    pattern: (_) @_.leading.endOf
+    type: (_
+      ":"
+      (_) @type
+    )
   ) @_.domain
-  (#not-type? @_.domain variable_declarator)
 )
+
+;;!! function ccc(aaa?: string) {}
+;;!                     ^^^^^^
+(formal_parameters
+  (optional_parameter
+    "?" @_.leading.endOf
+    type: (_
+      ":"
+      (_) @type
+    )
+  ) @_.domain
+)
+
+;;!! function ccc(): string {}
+;;!                  ^^^^^^
+;;!! ccc(): string {}
+;;!         ^^^^^^
+(_
+  parameters: (_) @_.leading.endOf
+  return_type: (_
+    ":"
+    (_) @type
+  )
+) @_.domain
 
 ;;!! new Aaa<Bbb>()
 ;;!      ^^^^^^^^
 (new_expression
   constructor: (_) @type.start
   type_arguments: (_)? @type.end
+)
+
+;;!! useState<string>()
+;;!           ^^^^^^
+;;!! useState<Record<string, string>>()
+;;!           ^^^^^^^^^^^^^^^^^^^^^^
+;;!                  ^^^^^^  ^^^^^^
+(type_arguments
+  (_) @type
+  (#not-parent-type? @_dummy type_assertion)
+) @_dummy
+
+;;!! function foo<A>() {}
+;;!               ^
+;;!! const foo = <A>() => {}
+;;!               ^
+(type_parameters
+  (_) @type
 )
 
 ;;!! interface Aaa {}
@@ -189,19 +279,25 @@
   [
     (type_alias_declaration)
     (interface_declaration)
-  ] @type
-) @_.domain
+  ]
+) @type
 
 ;;!! aaa as Bbb
 ;;!         ^^^
 ;;!     xxxxxxx
 ;;!  ----------
 (as_expression
-  (_) @_.leading.start.endOf
-  [
-    (generic_type)
-    (predefined_type)
-  ] @type @_.leading.end.startOf
+  (_) @_.leading.endOf
+  (_) @type
+) @_.domain
+
+;;!! aaa as const
+;;!         ^^^
+;;!     xxxxxxx
+;;!  ----------
+(as_expression
+  (_) @_.leading.endOf
+  "const" @type
 ) @_.domain
 
 ;;!! aaa satisfies Bbb
@@ -209,9 +305,78 @@
 ;;!     xxxxxxxxxxxxxx
 ;;!  -----------------
 (satisfies_expression
-  (_) @_.leading.start.endOf
+  (_) @_.leading.endOf
   [
     (generic_type)
     (predefined_type)
-  ] @type @_.leading.end.startOf
+  ] @type
 ) @_.domain
+
+;;!! abstract class MyClass {}
+;;!  ^^^^^^^^^^^^^^^^^^^^^^^^^
+(
+  (abstract_class_declaration
+    name: (_) @className
+  ) @class @_.domain
+  (#not-parent-type? @class export_statement)
+)
+
+;;!! export abstract class MyClass {}
+;;!  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(export_statement
+  (abstract_class_declaration
+    name: (_) @className
+  )
+) @class @_.domain
+
+;;!! class MyClass {}
+;;!        ^^^^^^^
+;;!  ----------------
+(abstract_class_declaration
+  name: (_) @name
+) @_.domain
+
+;;!! interface Type { name: string; }
+;;!                   ^^^^
+;;!                   xxxxxx
+;;!                   ------------
+(
+  (property_signature
+    name: (_) @collectionKey @type.leading.endOf
+    type: (_
+      ":"
+      (_) @type @collectionKey.trailing.startOf
+    )
+  ) @_.domain.start
+  ";"? @_.domain.end
+)
+
+;;!! interface Type { name: string; }
+;;!                 ^^^^^^^^^^^^^^^^^
+(object_type) @collectionKey.iteration
+
+;; Non-exported statements
+(
+  [
+    (ambient_declaration)
+    (abstract_class_declaration)
+    (enum_declaration)
+    (function_signature)
+    (import_alias)
+    (interface_declaration)
+    (internal_module)
+    (module)
+    (type_alias_declaration)
+  ] @statement
+  (#not-parent-type? @statement export_statement)
+)
+
+;; Statements with optional trailing `;`
+(
+  [
+    (property_signature)
+    (public_field_definition)
+    (abstract_method_signature)
+  ] @statement.start
+  ";"? @statement.end
+)
