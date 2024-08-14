@@ -1,10 +1,10 @@
-import * as console from "console";
 import { TokenHat } from "../types/HatTokenMap";
-import { rangeToPlainObject } from "../testUtil/toPlainObject";
-import path from "path";
-import fs from "fs";
+import { rangeToPlainObject } from "@cursorless/common";
+
 import { IDE } from "../ide/types/ide.types";
 import { Range } from "../types/Range";
+import * as path from "node:path";
+import * as fs from "node:fs";
 
 export class Sidecar {
   readonly enabled: boolean;
@@ -82,7 +82,9 @@ export class Sidecar {
 
       result[hat.hatStyle].push(rangeToPlainObject(hat.hatRange));
     });
-    serialized[filename] = result;
+    if (filename) {
+      serialized[filename] = result;
+    }
 
     const hatsFileName = `vscode-hats.json`;
     const directory = this.rootDirectory;

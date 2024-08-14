@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "esbuild:dev": "pnpm run esbuild:base src/mainDevelopment.ts",
-    "esbuild:prod": "pnpm run esbuild:base --minify src/mainProduction.ts",
+    "esbuild:prod": "pnpm run esbuild:base --minify src/mainProduction.ts --platform=node",
     "esbuild:watch": "pnpm run esbuild:base --watch src/mainDevelopment.ts",
     "esbuild:profile": "pnpm run esbuild:base --metafile=meta.json src/mainDevelopment.ts",
     "esbuild:base": "bash scripts/esbuild.sh",

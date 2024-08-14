@@ -7,6 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { vsCodeState } from "./serialization";
 import { workspace } from "vscode";
+import {CURSORLESS_ROOT_DIRECTORY} from "./constants";
 
 function evalRequest(requestObj: any) {
   // NOTE(pcohen): disable eval by default for security
@@ -66,7 +67,8 @@ async function handleRequest(requestObj: any) {
       case "applyPrimaryEditorState":
         // TODO(pcohen): this may change the editor state,
         // but it doesn't actually block on Cursorless applying those changes
-        applyPrimaryEditorState();
+        // TODO(pcohen): look up the actual prefix
+        applyPrimaryEditorState(CURSORLESS_ROOT_DIRECTORY);
         return { response: "OK" };
       case "command":
         return { result: await runVSCodeCommand(requestObj) };

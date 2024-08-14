@@ -47,7 +47,7 @@ export async function activate(plugin: NvimPlugin) {
     scopeProvider,
     injectIde,
     runIntegrationTests,
-  } = await createCursorlessEngine({ ide: normalizedIde, commandServerApi });
+  } = await createCursorlessEngine({ ide: normalizedIde, commandServerApi, sidecar: undefined});
 
   await registerCommands(client, neovimIDE, commandApi, commandServerApi);
 

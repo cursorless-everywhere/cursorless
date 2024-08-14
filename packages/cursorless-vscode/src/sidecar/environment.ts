@@ -5,8 +5,8 @@ import { CURSORLESS_ROOT_DIRECTORY } from "./constants";
 import { registerFileWatchers } from "./synchronization";
 import { startCommandServer } from "./commandServer";
 import * as path from "path";
-import { isTesting } from "@cursorless/common";
 import * as os from "os";
+import {vscodeRunMode} from "../ide/vscode/VscodeRunMode";
 
 /**
  * Returns whether we should run as the Cursorless everywhere sidecar.
@@ -26,12 +26,31 @@ export function shouldBeSidecar(
     .getConfiguration("cursorless")
     .get<boolean>("useSidecar")!;
 
-  return (
-    !isTesting() &&
+  let runMode = vscodeRunMode(extensionContext);
+  let verdict =   (
+    // runMode == "production" &&
     (CURSORLESS_ENABLED_ENVIRONMENT ||
       settingEnabled ||
       extensionContext.extensionMode === vscode.ExtensionMode.Development)
   );
+
+  let debug =
+    [`runMode: ${runMode}`,
+    `CURSORLESS_ENABLED_ENVIRONMENT: ${CURSORLESS_ENABLED_ENVIRONMENT}`,
+    `settingEnabled: ${settingEnabled}`,
+    `extensionContext.extensionMode: ${extensionContext.extensionMode}`,
+    `...verdict => ${verdict}`
+  ].join("\n");
+  console.log(`=== shouldBeSidecar: ===\n${debug}\n=== shouldBeSidecar: ===`);
+
+  if (!verdict) {
+    vscode.window.showInformationMessage(
+      "Cursorless sidecar is disabled. To enable, set `cursorless.useSidecar` to true in your settings.",
+    );
+  }
+
+  // vscode.window.showInformationMessage(debug);
+  return verdict;
 }
 
 export function sidecarSetup(rootDirectory: string, sidecarPrefix: string) {
@@ -91,9 +110,9 @@ export function sidecarPrefix(
   }
 
   // if not passed by environment, default to "debug" if running inside of the extension host
-  if (extensionContext.extensionMode === vscode.ExtensionMode.Development) {
-    return "debug";
-  }
+  // if (extensionContext.extensionMode === vscode.ExtensionMode.Development) {
+  //   return "debug";
+  // }
 
   return "";
 }

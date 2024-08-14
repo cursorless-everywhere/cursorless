@@ -42,11 +42,12 @@ import { ScopeRangeProvider } from "./scopeProviders/ScopeRangeProvider";
 import { ScopeSupportChecker } from "./scopeProviders/ScopeSupportChecker";
 import { ScopeSupportWatcher } from "./scopeProviders/ScopeSupportWatcher";
 import { injectIde } from "./singletons/ide.singleton";
-import { injectSidecar } from "./singletons/sidecar.singleton";
+import {injectSidecar} from "./singletons/sidecar.singleton";
+import {ScopeRangeWatcher} from "./scopeProviders/ScopeRangeWatcher";
 
 export interface EngineProps {
   ide: IDE;
-  sidecar: Sidecar,
+  sidecar: Sidecar | undefined,
   hats?: Hats;
   treeSitterQueryProvider?: RawTreeSitterQueryProvider;
   treeSitter?: TreeSitter;
@@ -58,7 +59,7 @@ export interface EngineProps {
 export async function createCursorlessEngine({
   ide,
   hats,
-  treeSitterQueryProvider,
+  treeSitterQueryProvider, sidecar,
   treeSitter = new DisabledTreeSitter(),
   commandServerApi = new DisabledCommandServerApi(),
   talonSpokenForms = new DisabledTalonSpokenForms(),

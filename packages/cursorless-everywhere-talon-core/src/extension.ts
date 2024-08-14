@@ -44,6 +44,7 @@ async function activateHelper(
 
   const { commandApi, injectIde, hatTokenMap, storedTargets } =
     await createCursorlessEngine({
+      sidecar: undefined,
       ide: normalizedIde,
       commandServerApi,
       hats,

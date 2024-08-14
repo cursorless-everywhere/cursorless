@@ -1,11 +1,11 @@
-import type {
+import {
   Disposable,
   EnforceUndefined,
   IDE,
   Range,
   Sidecar,
   ScopeType,
-  TextDocument,
+  TextDocument, ScopeProvider,
 } from "@cursorless/common";
 import {
   FakeCommandServerApi,
@@ -67,6 +67,7 @@ import {
   sidecarPrefix,
   sidecarSetup,
 } from "./sidecar/environment";
+import {vscodeRunMode} from "./ide/vscode/VscodeRunMode";
 
 let _sc: Sidecar;
 /**
@@ -81,6 +82,7 @@ export async function activate(
   context: vscode.ExtensionContext,
 ): Promise<CursorlessApi> {
   const parseTreeApi = await getParseTreeApi();
+
 
   const scEnabled = shouldBeSidecar(context);
   const scPrefix: string = scEnabled ? sidecarPrefix(context) : "";
@@ -123,6 +125,7 @@ export async function activate(
 
   const engineProps: EnforceUndefined<EngineProps> = {
     ide: normalizedIde,
+    sidecar: _sc,
     hats,
     treeSitterQueryProvider,
     treeSitter,
@@ -199,9 +202,6 @@ export async function activate(
       vscode.window.showErrorMessage(`${e}`);
     }
   }
-
-  const statusBarItem = StatusBarItem.create("cursorless.showQuickPick");
-  const keyboardCommands = KeyboardCommands.create(context, statusBarItem);
 
   registerCommands(
     context,
