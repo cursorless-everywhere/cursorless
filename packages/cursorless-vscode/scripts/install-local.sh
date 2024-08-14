@@ -17,7 +17,26 @@ vsce package -o ../bundle.vsix
 code --uninstall-extension pokey.cursorless || echo "Cursorless not currently installed"
 
 # 4. Install local Cursorless
+realpath ../bundle.vsix
+echo ""
+echo -e "\e[1;32mInstalling local Cursorless to VSCode...\e[0m"
 code --install-extension ../bundle.vsix --force
 
+if command -v code-insiders &> /dev/null; then
+  echo ""
+  echo -e "\e[1;32mInstalling local Cursorless to VSCode Insiders...\e[0m"
+  code-insiders --install-extension ../bundle.vsix --force
+else
+  echo -e "\e[1;33mVSCode Insiders not found, skipping...\e[0m"
+fi
+
+#if command -v cursor &> /dev/null; then
+#  echo -e "\e[1;32mInstalling local Cursorless to Cursor...\e[0m"
+#  cursor --install-extension ../bundle.vsix --force
+#else
+#  echo -e "\e[1;33mCursor not found, skipping...\e[0m"
+#fi
+
+echo ""
 echo -e "\e[1;32mPlease restart VSCode\e[0m"
 echo "To uninstall and revert to production Cursorless, run the adjacent uninstall-local.sh"
